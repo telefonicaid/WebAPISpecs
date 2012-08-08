@@ -31,7 +31,7 @@
 <body>
  <section id='abstract'>
   <p>This specification defines a “Push API” that provides webapps (Web applications) with scripted access to server-sent application data, for simplicity referred to here as "Push messages" as delivered by "Push services". Push services are a way for servers to send messages to webapps, whether or not the webapp is active in a browser window.</p>
-  <p>Push messages may be delivered via various methods, either standardized (e.g. delivered via <a href="http://www.w3.org/TR/eventsource">[Server-Sent Events]</a> over connectionless network bearers such as SMS and OMA Push/SMS <a href="http://www.openmobilealliance.org/Technical/release_program/push_v2_3.aspx">[OMA-Push]</a>), or via browser-specific methods. The specific method to be used by a webapp is either selected by the webapp, by the user through selecting a Web Intent Push Service provider, or by the browser. The Push API is defined to promote compatibility with any underlying delivery method.</p>
+  <p>Push messages may be delivered via various methods, either standardized (e.g. delivered via <a href="http://www.w3.org/TR/eventsource">[Server-Sent Events]</a> over connectionless network bearers such as SMS and OMA Push/SMS <a href="http://www.openmobilealliance.org/Technical/release_program/push_v2_3.aspx">[OMA-Push]</a>), or via browser-specific methods. The specific method to be used by a webapp is either selected by the user through selecting a Web Intent Push Service provider, or by the browser. The Push API is defined to promote compatibility with any underlying delivery method.</p>
  </section>
  
  <section id='sotd'>
@@ -44,6 +44,8 @@
    <li>the webapp is not currently active in a browser window: this relates to use cases in which the user may close the webapp, but still benefits from the webapp being able to be restarted when a Push message is received, e.g. the WebRTC use case in which an incoming call can invoke the WebRTC webapp  
    <li>multiple webapps are running, but Push messages are delivered only to the webapp that requested them, e.g. any normal use case in which multiple webapps are active in the browser and utilizing Push services
    <li>multiple instances of the same webapp are active in the browser, and Push messages specific to each instance of the webapp are delivered only to the specific instance, e.g. when a mail webapp is active in two windows using different mail accounts
+   <li>multiple instances of the same webapp are active in different browsers, and Push messages are delivered to a set of instances of the webapp, e.g. when a mail webapp is active in two browsers using the samemail account</li>
+   <li>multiple instances of the same webapp are active in different browsers, and Push messages are delivered to all instances of the webapp, e.g. when a message is to be broadcasted to all users of the webapp
   </ul></p>
  </section>
  
@@ -63,6 +65,12 @@
  <section><h2>Security and privacy considerations</h2>
   <p>To be provided.</p>
  </section> 
+
+ <section id="pushframework"><h2>Push Framework</h2>
+  <p>There are different deployment alternatives to allow webapp servers to deliver Push messages to webapps. In a typical deployment webapp servers send push messages to a Push server, e.g. by a RESTful interface, which in turn delivers the message to the user agent on top of which the webapp is running. The user agent delivers then the Push message to the corresponding webapp to which the Push message was addressed.</p>
+  <p>This API allows webapps to ask the user for permission to receive Push messages and to provide the user agent with the necessary information to activate the Push service. For instance, the webapp provides a unique application token that is used by the webapp server when sending a message to the Push server to address an specific instance (or set thereof) of the application. In case several instances of a webapp register the same application token, e.g. in different user agents, then the Push server deliver Push messages addressed to that application token to all of those instances (e.g. when a mail webapp is active in two browsers using the same mail account)</p>
+  <p>Also the webapp may provide additional information in order to allow the Push server to verify that Push messages come from the right webapp server. Namely it can provide a public key that the Push server can use to verify that the Push message comes from the right webapp server, which has signed the message with the associated private key</p>
+ </section>
  
  <section id="navigatorpush"><h2><a>NavigatorPush</a> Interface</h2>
   <p>The <a>NavigatorPush</a> interface is exposed on the <code>Navigator</code> object.</p>
@@ -76,29 +84,32 @@
  <section id="pushmanager"><h1>The <a>PushManager</a> Interface</h1>
   <p>This interface defines the operations that enable webapps to establish access to Push services.</p>
   <dl title="interface PushManager" class="idl">
-   <dt>PushService requestRemotePermission(optional DOMString url)</dt>
-    <dd>Asks the user if they'd like to allow this webapp to receive Push messages, optionally identifying a particular type of Push service by its URL. Upon success, a <code><a href="#pushservice">PushService</a></code> object is returned, with a Push service URL where the webapp server can send messages to this webapp. If the webapp has been granted permission already and is calling requestRemotePermission() again, the Push service URL will be returned without asking again for permission.</dd> 
-   <dt>PushService checkRemotePermission(optional DOMString url)</dt>
-    <dd>Lets the webapp ask the browser if the webapp has been granted permission to receive Push messages, optionally identifying a particular type of Push service by its URL, without bothering the user. The success callback would return the same <code><a href="#pushservice">PushService</a></code> object that <code>requestRemotePermission()</code> received, but if the user has never allowed notifications for the webapp the error callback would run.</dd>
+   <dt>PushService requestRemotePermission(DOMString appToken, optional DOMString publicKey, optional DOMString algorithm)</dt>
+    <dd>Asks the user if they'd like to allow this webapp to receive Push messages. The webapp conveys an application token, which is a unique token generated by the application that identifies the instance (or set thereof) that is (are) intended to receivethe Push messages that are addressed to this application token by the webapp server. In case several instances of a webapp register the same application token, e.g. in different user agents, then the Push server <em title="must" class="rfc2119">must</em> deliver Push messages addressed to that application token to all of those instances(e.g. when a mail webapp is active in two browsers using the same mail account).  
+      <p>In order to verify that Push messages received by the Push server come from the right webapp server, the webapp server <em title="may" class="rfc2119">may</em> sign Push messages. In case messages are signed by the corresponding webapp server then the webapp <em title="must" class="rfc2119">must</em> include in the <code>publicKey</code> attribute the public key that the Push server can use to verify the signature of Push messages.The default signature algorithm is RSA-SHA256, which <em title="must" class="rfc2119">must</em> be supported by Push servers, although the webapp may propse the use of a different algorithm. If the webapp wants to indicate the use of a different signature algorithm it will indicate it in the <code>algorithm</code> attribute, which will be enconded according to [[!XMLSEC-ALGORITHMS]]</p>
+      <p>Upon success, a <code><a href="#pushservice">PushService</a></code> object is returned, with a Push service URL where the webapp server can send messages to this webapp. If the webapp has been granted permission already and is calling requestRemotePermission() again, the Push service URL will be returned without asking again for permission.</p>
+   <dt>PushService checkRemotePermission(DOMString appToken)</dt>
+    <dd>Lets the webapp ask the browser if the webapp has been granted permission to receive Push messages, without bothering the user. The success callback would return the same <code><a href="#pushservice">PushService</a></code> object that <code>requestRemotePermission()</code> received, but if the user has never allowed notifications for the webapp the error callback would run.</dd>
   </dl>
   
-  <p>If the user permits webapp access to Push service upon a call to the <code>requestRemotePermission()</code> method, the <a>user agent</a> <em title="must" class="rfc2119">must</em> run these steps:
-   <ol>
-    <li>If the <code>url</code> parameter is present and the <a>user agent</a> recognizes the <code>url</code> value as a particular type of Push service that it supports, the <a>user agent</a> <em title="must" class="rfc2119">must</em> <a href="#activateservice">activate the service</a>.
-    <li>If the <code>url</code> parameter is not present, and the <a>user agent</a> is designed or configured to support a default Push service, the <a>user agent</a> <em title="must" class="rfc2119">must</em> <a href="#activateservice">activate the service</a>.</p>
-   </ol>
-  </p>
+  <p>If the user permits webapp access to Push service upon a call to the <code>requestRemotePermission()</code> method, the <a>user agent</a> <em title="must" class="rfc2119">must</em> activate the service.</p>
 
-  <p id="activateservice">The requirements for activation of a particular Push service are either unspecified or as defined <a href="#servicebindings">here</a>.</p> 
+  <p id="activateservice">The particular Push service used by the user agent is transparent to the webapp and the requirements for its activation are either unspecified or as defined <a href="#servicebindings">here</a>.</p>
  </section>
  
  <section id="pushservice"><h1>The <a>PushService</a> Interface</h1>
   <p>The <dfn id="dom-pushservice" title="dom-PushService"><code>PushService</code></dfn> interface enables webapps to access Push services that have been permitted by the user.</p>
   <dl title="interface PushService : EventTarget" class="idl">
-   <dt>readonly attribute DOMString requestUrl</dt>
-    <dd>The <span>absolute URL</span> that resulted from resolving (as defined in [[!HTML5]]) the URL value that was passed as a parameter to <code>requestRemotePermission()</code>.</dd>
+   <dt>readonly attribute DOMString appToken</dt> 
+    <dd>A unique token generated by the application that identifies the instance or set of instances that are intended to receive Push messages and that was passed as a parameter to <code>requestRemotePermission()</code>.</dd>
+   <dt>readonly attribute DOMString publicKey</dt> 
+    <dd>The public key that the Push server can use to verify the signature of the push message and that was passed as a parameter to <code>requestRemotePermission()</code>.</dd>
+   <dt>readonly attribute DOMString algorithm</dt> 
+    <dd>The signature algorithm used by the webapp server to sign push messages and that was passed as a parameter to <code>requestRemotePermission()</code>.</dd>
    <dt>readonly attribute DOMString serviceUrl</dt>
     <dd>A URL where the webapp server can send messages to this webapp.</dd>
+   <dt>readonly attribute DOMString[] serverProtocols</dt>
+    <dd>A list of server protocol versions that the server supports in order of preference (e.g. protocols more likely to be deprecated first would go later in the array). The webapp server should use the first version in this array that it supports. </dd>
    <dt>readonly attribute DOMError error</dt>
     <dd>An error that occured in processing the request, or during operation of the Push service. Errors are as defined in [[!DOM4]].</dd> 
    <dt>attribute boolean wakeup</dt>
@@ -121,11 +132,19 @@
     <dd></dd> 
   </dl>
 
-  <p>The <dfn id="dom-pushservice-requesturl" title="dom-PushService-requestUrl"><code>requestUrl</code></dfn> attribute <em title="must" class="rfc2119">must</em> return the <span>absolute URL</span> that resulted from resolving (as defined in [[!HTML5]]) the URL value that was passed as a parameter to <code>requestRemotePermission()</code>.</p>
+  <p>The <dfn id="dom-pushservice-apptoken" title="dom-PushService-appToken"><code>appToken</code></dfn> attribute <em title="must" class="rfc2119">must</em> return the application token that was passed as a parameter to <code>requestRemotePermission()</code>.</p>
+  
+  <p>The <dfn id="dom-pushservice-publickey" title="dom-PushService-publicKey"><code>publicKey</code></dfn> attribute <em title="must" class="rfc2119">must</em> return the public key that was passed as a parameter to <code>requestRemotePermission()</code>.</p>
+  
+  <p>The <dfn id="dom-pushservice-algorithm" title="dom-PushService-algorithm"><code>algorithm</code></dfn> attribute <em title="must" class="rfc2119">must</em> return the signature algorithm that was passed as a parameter to <code>requestRemotePermission()</code>.</p>
   
   <p>The <dfn id="dom-pushservice-serviceurl" title="dom-PushService-serviceUrl"><code>serviceUrl</code></dfn> attribute <em title="must" class="rfc2119">must</em> return the <span>absolute URL</span> where the webapp server can send Push service messages to this webapp.</p>
   
+  <p>The <dfn id="dom-pushservice-serverprotocols" title="dom-PushService-serverProtocols"><code>serverProtocols</code></dfn> attribute <em title="must" class="rfc2119">must</em> return the set of server protocol versions that the Push server supports in order of preference
+  for its use by the webapp server to send Push messages to the Push server.</p>
+  
   <p>The <dfn id="dom-pushservice-error" title="dom-PushService-error"><code>error</code></dfn> attribute <em title="must" class="rfc2119">must</em> return any error that occured in processing the request, or during operation of the Push service.</p>
+
      
   <p>If set to <code>true</code>, the <dfn id="dom-pushservice-wakeup" title="dom-PushService-wakeup"><code>wakeup</code></dfn>, when a Push message is received and the webapp is not active in a browser window, the browser <em title="must" class="rfc2119">must</em> invoke the webapp if possible, and deliver the Push message to it. Examples of cases in which webapps should be invokable include:
    <ul>
