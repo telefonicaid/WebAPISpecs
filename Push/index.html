@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Push API</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <script src='http://respec.specifiction.com/js/profiles/w3c-common.js' class='remove'></script>
+    <script class="remove">
+      var respecConfig = {
+          specStatus:           "ED",
+          shortName:            "push-api",
+          publishDate:          "",
+          previousPublishDate:  "",
+          previousMaturity:     "",
+          edDraftURI:           "http://dvcs.w3.org/hg/webapps/raw-file/tip/push/Overview.html",
+          // lcEnd:                "",
+          crEnd:                "",
+          editors:  [
+              { name: "Bryan Sullivan", company: "AT&T", companyURL: "http://att.com/" }
+          ],
+          inlineCSS:    true,
+          noIDLIn:      true,
+          extraCSS:     ["../ReSpec.js/css/respec.css"],
+          wg:           "Webapps Working Group",
+          wgURI:        "http://www.w3.org/2008/webapps/",
+          wgPublicList: "public-webapps",
+          wgPatentURI:  "http://www.w3.org/2004/01/pp-impl/43696/status",
+      };
+    </script>
+  </head>
+  
+<body>
+ <section id='abstract'>
+  <p>This specification defines a “Push API” that provides webapps (Web applications) with scripted access to server-sent application data, for simplicity referred to here as "Push messages" as delivered by "Push services". Push services are a way for servers to send messages to webapps, whether or not the webapp is active in a browser window.</p>
+  <p>Push messages may be delivered via various methods, either standardized (e.g. delivered via <a href="http://www.w3.org/TR/eventsource">[Server-Sent Events]</a> over connectionless network bearers such as SMS and OMA Push/SMS <a href="http://www.openmobilealliance.org/Technical/release_program/push_v2_3.aspx">[OMA-Push]</a>), or via browser-specific methods. The specific method to be used by a webapp is either selected by the webapp, by the user through selecting a Web Intent Push Service provider, or by the browser. The Push API is defined to promote compatibility with any underlying delivery method.</p>
+ </section>
+ 
+ <section id='sotd'>
+ </section> 
+
+ <section class='informative' id="introduction"><h2>Introduction</h2>
+  <p>As defined here, Push services support delivery of server messages in the following contexts and related use cases:<ul>
+   <li>the user is actively involved in the use of a webapp: this relates to any normal use case in which a webapp user may benefit from Push messages while the user is actively using the webapp
+   <li>the user is not actively involved in the use of a webapp, but the webapp is active in a window of the browser or executing as a web worker: this relates to use cases such as social networking, messaging, web feed readers, etc in which the user may not be actively using a webapp but still benefits from Push messages being sent to (or via) the webapp, to keep the user up-to-date
+   <li>the webapp is not currently active in a browser window: this relates to use cases in which the user may close the webapp, but still benefits from the webapp being able to be restarted when a Push message is received, e.g. the WebRTC use case in which an incoming call can invoke the WebRTC webapp  
+   <li>multiple webapps are running, but Push messages are delivered only to the webapp that requested them, e.g. any normal use case in which multiple webapps are active in the browser and utilizing Push services
+   <li>multiple instances of the same webapp are active in the browser, and Push messages specific to each instance of the webapp are delivered only to the specific instance, e.g. when a mail webapp is active in two windows using different mail accounts
+  </ul></p>
+ </section>
+ 
+ <section id="conformance">
+  <p>This specification defines conformance criteria that apply to a single product: the <dfn><a>user agent</a></dfn> that implements the interfaces that it contains.</p>
+  <p>Implementations that use ECMAScript to implement the APIs defined in this specification <em title="must" class="rfc2119">must</em> implement them in a manner consistent with the ECMAScript Bindings defined in the Web IDL specification [[!WEBIDL]], as this specification uses that specification and terminology.</p>
+ </section>
+ 
+ <section><h2>Terminology</h2>
+  <p>The <code><a href="http://dev.w3.org/html5/spec/webappapis.html#function"> Function</a></code> interface represents a function in the scripting language being used as defined in [[!HTML5]].</p>
+  <p>The concepts <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#queue-a-task"> queue a task</a></dfn> and
+        <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#fire-a-simple-event"> fires a simple event</a></dfn> are defined in [[!HTML5]].</p>
+  <p>The terms <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#event-handlers"> event handlers</a></dfn> and
+        <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#event-handler-event-type"> event handler event types</a></dfn> are defined in [[!HTML5]].</p>
+ </section>
+
+ <section><h2>Security and privacy considerations</h2>
+  <p>To be provided.</p>
+ </section> 
+ 
+ <section id="navigatorpush"><h2><a>NavigatorPush</a> Interface</h2>
+  <p>The <a>NavigatorPush</a> interface is exposed on the <code>Navigator</code> object.</p>
+  <div class="idl" title="Navigator implements NavigatorPush"></div>
+  <dl title="[NoInterfaceObject] interface NavigatorPush" class="idl">
+   <dt>readonly attribute PushManager push</dt>
+    <dd>The object that exposes the Push service management interface.</dd>
+  </dl>
+ </section>
+    
+ <section id="pushmanager"><h1>The <a>PushManager</a> Interface</h1>
+  <p>This interface defines the operations that enable webapps to establish access to Push services.</p>
+  <dl title="interface PushManager" class="idl">
+   <dt>PushService requestRemotePermission(optional DOMString url)</dt>
+    <dd>Asks the user if they'd like to allow this webapp to receive Push messages, optionally identifying a particular type of Push service by its URL. Upon success, a <code><a href="#pushservice">PushService</a></code> object is returned, with a Push service URL where the webapp server can send messages to this webapp. If the webapp has been granted permission already and is calling requestRemotePermission() again, the Push service URL will be returned without asking again for permission.</dd> 
+   <dt>PushService checkRemotePermission(optional DOMString url)</dt>
+    <dd>Lets the webapp ask the browser if the webapp has been granted permission to receive Push messages, optionally identifying a particular type of Push service by its URL, without bothering the user. The success callback would return the same <code><a href="#pushservice">PushService</a></code> object that <code>requestRemotePermission()</code> received, but if the user has never allowed notifications for the webapp the error callback would run.</dd>
+  </dl>
+  
+  <p>If the user permits webapp access to Push service upon a call to the <code>requestRemotePermission()</code> method, the <a>user agent</a> <em title="must" class="rfc2119">must</em> run these steps:
+   <ol>
+    <li>If the <code>url</code> parameter is present and the <a>user agent</a> recognizes the <code>url</code> value as a particular type of Push service that it supports, the <a>user agent</a> <em title="must" class="rfc2119">must</em> <a href="#activateservice">activate the service</a>.
+    <li>If the <code>url</code> parameter is not present, and the <a>user agent</a> is designed or configured to support a default Push service, the <a>user agent</a> <em title="must" class="rfc2119">must</em> <a href="#activateservice">activate the service</a>.</p>
+   </ol>
+  </p>
+
+  <p id="activateservice">The requirements for activation of a particular Push service are either unspecified or as defined <a href="#servicebindings">here</a>.</p> 
+ </section>
+ 
+ <section id="pushservice"><h1>The <a>PushService</a> Interface</h1>
+  <p>The <dfn id="dom-pushservice" title="dom-PushService"><code>PushService</code></dfn> interface enables webapps to access Push services that have been permitted by the user.</p>
+  <dl title="interface PushService : EventTarget" class="idl">
+   <dt>readonly attribute DOMString requestUrl</dt>
+    <dd>The <span>absolute URL</span> that resulted from resolving (as defined in [[!HTML5]]) the URL value that was passed as a parameter to <code>requestRemotePermission()</code>.</dd>
+   <dt>readonly attribute DOMString serviceUrl</dt>
+    <dd>A URL where the webapp server can send messages to this webapp.</dd>
+   <dt>readonly attribute DOMError error</dt>
+    <dd>An error that occured in processing the request, or during operation of the Push service. Errors are as defined in [[!DOM4]].</dd> 
+   <dt>attribute boolean wakeup</dt>
+    <dd>An indication that the webapp requests to be invoked if possible, when a Push message is available for delivery and the webapp is not active in a browser window.</dd> 
+   <dt>[TreatNonCallableAsNull] attribute Function? onsuccess</dt>
+    <dd>Code to be executed when a successful result is returned from <code>requestRemotePermission()</code> or <code>checkRemotePermission()</code>.</dd> 
+   <dt>[TreatNonCallableAsNull] attribute Function? onerror</dt>
+    <dd>Code to be executed when an error result is returned from <code>requestRemotePermission()</code> or <code>checkRemotePermission()</code>.</dd> 
+   <dt>[TreatNonCallableAsNull] attribute Function? onmessage</dt>
+    <dd>Code to be executed when a Push message has been received.</dd> 
+   <dt>void close()</dt>
+    <dd>Called to terminate the Push service.</dd> 
+   <dt>readonly attribute unsigned short readyState</dt>
+    <dd>The state of the Push service.</dd> 
+   <dt>const unsigned short CONNECTING = 0</dt>
+    <dd></dd> 
+   <dt>const unsigned short OPEN = 1</dt>
+    <dd></dd> 
+   <dt>const unsigned short CLOSED = 2</dt>
+    <dd></dd> 
+  </dl>
+
+  <p>The <dfn id="dom-pushservice-requesturl" title="dom-PushService-requestUrl"><code>requestUrl</code></dfn> attribute <em title="must" class="rfc2119">must</em> return the <span>absolute URL</span> that resulted from resolving (as defined in [[!HTML5]]) the URL value that was passed as a parameter to <code>requestRemotePermission()</code>.</p>
+  
+  <p>The <dfn id="dom-pushservice-serviceurl" title="dom-PushService-serviceUrl"><code>serviceUrl</code></dfn> attribute <em title="must" class="rfc2119">must</em> return the <span>absolute URL</span> where the webapp server can send Push service messages to this webapp.</p>
+  
+  <p>The <dfn id="dom-pushservice-error" title="dom-PushService-error"><code>error</code></dfn> attribute <em title="must" class="rfc2119">must</em> return any error that occured in processing the request, or during operation of the Push service.</p>
+     
+  <p>If set to <code>true</code>, the <dfn id="dom-pushservice-wakeup" title="dom-PushService-wakeup"><code>wakeup</code></dfn>, when a Push message is received and the webapp is not active in a browser window, the browser <em title="must" class="rfc2119">must</em> invoke the webapp if possible, and deliver the Push message to it. Examples of cases in which webapps should be invokable include:
+   <ul>
+    <li>The webapp has been installed from a widget package or other installation method.
+    <li>The webapp is persistently cached via the [[!HTML5]] Application Cache.
+    <li>The webapp exists in the browser cache.
+    <li>The browser is able to retrieve the webapp at the absolute URL from where it was accessed when the <a href="#pushservice">PushService</a></code> object was created. 
+   </ul>
+  </p>
+     
+  <p>The <dfn id="dom-pushservice-readystate" title="dom-PushService-readyState"><code>readyState</code></dfn> attribute represents the state of the Push service. It can have the following values:
+   <dl>
+    <dt><dfn id="dom-pushservice-connecting" title="dom-PushService-CONNECTING"><code>CONNECTING</code></dfn> (numeric value 0)</dt>
+     <dd>The Push service is not yet activated, or was closed and the <a>user agent</a> is reconnecting.</dd> 
+    <dt><dfn id="dom-pushservice-open" title="dom-PushService-OPEN"><code>OPEN</code></dfn> (numeric value 1)</dt>
+     <dd>The Push service is active and the <a>user agent</a> is dispatching Push messages as it receives them.</dd> 
+    <dt><dfn id="dom-pushservice-closed" title="dom-PushService-CLOSED"><code>CLOSED</code></dfn> (numeric value 2)</dt>
+    <dd>The Push service is not open. Either there was a fatal error or the <code title="dom-PushService-close"><a href="#dom-pushservice-close">close()</a></code> method was invoked.</dd> 
+   </dl>
+  </p>
+
+  <p>When the <code><a href="#pushservice">PushService</a></code> object is created its <code title="dom-PushService-readyState"><a href="#dom-pushservice-readystate">readyState</a></code> <em title="must" class="rfc2119">must</em> be set to <code title="dom-PushService-OPEN"><a href="#dom-pushservice-open">OPEN</a></code> (1) if Push messages may be immediately received by the webapp (i.e. no further processing is required to activate the Push service). Otherwise <code title="dom-PushService-readyState"><a href="#dom-pushservice-readystate">readyState</a></code> <em title="must" class="rfc2119">must</em> be set to <code title="dom-PushService-CONNECTING"><a href="#dom-pushservice-connecting">CONNECTING</a></code> (0), and transition to <code title="dom-PushService-OPEN"><a href="#dom-pushservice-open">OPEN</a></code> (1) only when Push messages may be received by the webapp.</p>
+    
+  <p>The <dfn id="dom-pushservice-close" title="dom-PushService-close"><code>close()</code></dfn> method <em title="must" class="rfc2119">must</em> abort any further operation of a Push service related to the <code><a href="#pushservice">PushService</a></code> object, and <em title="must" class="rfc2119">must</em> set the <code title="dom-PushService-readyState"><a href="#dom-pushservice-readystate">readyState</a></code> attribute to <code title="dom-PushService-CLOSED"><a href="#dom-pushservice-closed">CLOSED</a></code>.</p> 
+
+  <p>The following are the <span>event handlers</span> (and their corresponding <span title="event handler event type">event handler event types</span>) that <em title="must" class="rfc2119">must</em> be supported, as IDL attributes, by all objects implementing the <code><a href="#pushservice">PushService</a></code> interface:</p>
+
+  <table><thead><tr><th><span title="event handlers">Event handler</span> <th><span>Event handler event type</span>
+   <tbody>
+    <tr><td><dfn id="handler-pushservice-onsuccess" title="handler-PushService-onsuccess"><code>onsuccess</code></dfn> <td><code title="event-success">success</code>
+    <tr><td><dfn id="handler-pushservice-onopen" title="handler-PushService-onopen"><code>onopen</code></dfn> <td> <code title="event-open">open</code>
+    <tr><td><dfn id="handler-pushservice-onmessage" title="handler-PushService-onmessage"><code>onmessage</code></dfn> <td> <code title="event-message">message</code>
+    <tr><td><dfn id="handler-pushservice-onerror" title="handler-PushService-onerror"><code>onerror</code></dfn> <td> <code title="event-error">error</code>
+  </table>
+
+  <p>When a Push message is received, the <a>user agent</a> <em title="must" class="rfc2119">must</em> deliver the message data via the <code>onmessage</code> handler, if possible. If delivery is not possible, the <a>user agent</a> may discard the message, or may queue it for later delivery.</p>
+  
+ </section>
+ 
+ <section id="servicebindings"><h1>Specific Service Bindings</h1>
+  <p>To be provided.</p>
+ </section>
+ 
+ <section class="informative"><h2>Examples</h2>
+  <p>To be provided.</p>
+ </section> 
+ 
+ <section class="appendix"><h2>Acknowledgements</h2>
+  <p>To be provided.</p>
+ </section> 
+         
+</body>
+</html>
