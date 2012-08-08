@@ -1,0 +1,537 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html lang=en><head>
+
+<meta content="text/html; charset=utf-8" http-equiv=content-type>
+<title>Web Telephony API</title>
+<link href=http://www.whatwg.org/style/specification rel=stylesheet type=text/css>
+
+<style>
+   .domintro:before { display: table; margin: -1em -0.5em -0.5em auto; width: auto; content: 'This box is non-normative. Implementation requirements are given below this box.'; color: black; font-style: italic; border: solid 2px; background: white; padding: 0 0.25em; }
+  </style>
+
+</head><body class=draft>
+
+<div class=head>
+	<h1>Web Telephony API</h1>
+	
+	<h2 class="no-num no-toc" id=working-draft-22-september-2011>Working Draft — 22 September 2011</h2>
+	
+	<dl>
+		<dt>This version:
+		</dt><dd><!--begin-link--><a href=http://example.com/>http://example.com/</a><!--end-link-->
+		
+		</dd><dt>Latest version:
+		</dt><dd><!--begin-link--><a href=http://example.com/>http://example.com/</a><!--end-link-->
+		
+		</dd><dt>Previous versions:
+		</dt><dd><!--begin-link--><a href=http://example.com/>http://example.com/</a><!--end-link-->
+		</dd><dd><!--begin-link--><a href=http://example.com/>http://example.com/</a><!--end-link-->
+		</dd><dd><!--begin-link--><a href=http://example.com/>http://example.com/</a><!--end-link-->
+		
+		</dd><dt>Editors:
+		</dt><dd class=vcard>
+			<span class=fn>Jose M. Cantera</span>,
+			<span class=org>Telefonica I+D</span>,
+			<span class=email>jmcf@tid.es</span>
+	</dd></dl>
+	
+	<p class=copyright>.
+	</p><p class=copyright>You are granted a license to do absolutely anything
+	with this document, including removing this copyright notice.
+</p></div>
+
+<h2 class="no-num no-toc" id=abstract>Abstract</h2>
+
+<p>This specification defines the Web Telephony API which offers a simple interface to manage telephony calls.
+
+</p><h2 class="no-num no-toc" id=status>Status</h2>
+
+<p>This is a <strong>work in progress</strong> and may change everyday.
+
+</p><p>This specification is being produced under the WAC DAP LPWG and the B2G Mozilla Project.
+
+
+</p><h2 class="no-num no-toc" id=table-of-contents>Table of Contents</h2>
+
+
+<!--begin-toc-->
+<ol class=toc>
+ <li><a href=#introduction><span class=secno>1 </span>Introduction</a></li>
+ <li><a href=#conformance><span class=secno>2 </span>Conformance</a></li>
+ <li><a href=#security-and-privacy-considerations><span class=secno>3 </span>Security and Privacy Considerations</a></li>
+ <li><a href=#api-description><span class=secno>4 </span>API Description</a>
+  <ol>
+   <li><a href=#the-telephony-interface><span class=secno>4.1 </span>The Telephony interface</a></li>
+   <li><a href=#the-call-interface><span class=secno>4.2 </span>The Call interface</a></li>
+   <li><a href=#the-speaker-interface><span class=secno>4.3 </span>The Speaker interface</a></li>
+   <li><a href=#the-microphone-interface><span class=secno>4.4 </span>The Microphone interface</a></li>
+   <li><a href=#the-incomingcallevent><span class=secno>4.5 </span>The IncomingCallEvent</a></li></ol></li>
+ <li><a class=no-num href=#acknowledgements>Acknowledgements</a></li></ol>
+<!--end-toc-->
+
+<h2 id=introduction><span class=secno>1 </span>Introduction</h2>
+
+<p>The Web Telephony API allows to control the lifecycle of a telephone call from a Web Application. 
+</p><p>An example of use is provided below
+
+</p><pre class=example>	
+var call = navigator.telephony.newCall('+34638883076');
+call.onreadystatechange = function() { 
+            if (this.readyState == 'connected')
+                 window.console.log('Connected!'); 
+}
+
+call.onerror = function(e) {
+	window.console.error(e);
+}
+
+call.connect();
+
+</pre>
+
+<h2 id=conformance><span class=secno>2 </span>Conformance</h2>
+
+ <p>All diagrams, examples, and notes in this specification are
+  non-normative, as are all sections explicitly marked non-normative.
+  Everything else in this specification is normative.
+
+  </p><p>The key words "MUST", "MUST NOT", "REQUIRED", <!--"SHALL", "SHALL
+  NOT",--> "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and
+  "OPTIONAL" in the normative parts of this document are to be
+  interpreted as described in RFC2119. For readability, these words do
+  not appear in all uppercase letters in this specification. <a href=#refsRFC2119>[RFC2119]</a>
+
+</p><p>
+        This specification defines conformance criteria that apply to a single product: the 
+        <dfn id=ua>user agent</dfn> that implements the interfaces that it contains.
+
+</p><h2 id=security-and-privacy-considerations><span class=secno>3 </span>Security and Privacy Considerations</h2>
+   <p>To be written
+</p><p>
+
+</p><h2 id=api-description><span class=secno>4 </span>API Description</h2>
+
+<h3 id=the-telephony-interface><span class=secno>4.1 </span>The Telephony interface</h3>
+<p>The <a href=#telephony><code>Telephony</code></a> interface represents the initial entry point for getting access to telephony services.
+
+</p><pre class=idl>interface <dfn id=telephony>Telephony</dfn> : <span>EventTarget</span> {
+   Call <a href=#telephony-newcall title=telephony-newcall>newCall</a>(in DOMString number); 
+   readonly attribute object? <a href=#telephony-active title=telephony-active>active</a>;   
+   readonly attribute Call[] <a href=#telephony-calls title=telephony-calls>calls</a>;    
+
+   readonly attribute Microphone <a href=#telephony-mic title=telephony-mic>mic</a>;
+   readonly attribute Speaker <a href=#telephony-speaker title=telephony-speaker>speaker</a>;
+
+   attribute <span>Function</span>? <a href=#handler-onincomingcall title=handler-onincomingcall>onincomingcall</a>;   
+
+   attribute boolean <a href=#telephony-donotdisturb title=telephony-doNotDisturb>doNotDisturb</a>;    
+ }
+</pre>
+
+<dl class=domintro>
+   <dt><var title="">navigator.telephony</var> . <a href=#telephony-newcall><code title=telephony-newCall>newCall</code></a>(number)</dt>
+   <dd>
+    <p>Allows to instantiate a new <a href=#call><code>Call</code></a> object that intended to manage a telephone call</p>
+   </dd>
+   
+   <dt><var title="">navigator.telephony</var> . <a href=#telephony-active><code title=telephony-active>active</code></a></dt>
+   <dd>
+	<p>Returns the active <a href=#call><code>Call</code></a>. A call is considered 'active' if it is in the 'connected' state.
+   </p></dd>
+
+   <dt><var title="">navigator.telephony</var> . <a href=#telephony-calls><code title=telephony-calls>calls</code></a></dt>
+   <dd>
+	<p>Returns an array with the list of instantiated calls. The attribute must be initialized to an empty array.
+   </p></dd>
+
+   <dt><var title="">navigator.telephony</var> . <a href=#telephony-mic><code title=telephony-mic>mic</code></a></dt>
+   <dd>
+	<p>Returns a reference to the Microphone
+   </p></dd>
+
+   <dt><var title="">navigator.telephony</var> . <a href=#telephony-speaker><code title=telephony-speaker>speaker</code></a></dt>
+   <dd>
+	<p>Returns a reference to the Speaker
+   </p></dd>
+
+  <dt><var title="">navigator.telephony</var> . <a href=#telephony-donotdisturb><code title=telephony-doNotDisturb>doNotDisturb</code></a></dt>
+   <dd>
+	<p>Allows to disable incoming calls. 
+   </p></dd>
+
+<dt><var title="">navigator.telephony</var> . <code title=telephony-onincomingcall>onincomingcall</code></dt>
+   <dd>
+	<p>Reference to an event handler associated to the <code title=event-incomingcall>incomingcall</code> DOM Event.
+   </p></dd>
+</dl>
+
+<div class=impl>
+
+<p>The IDL attribute <dfn id=telephony-active title=telephony-active><code>active</code></dfn> must return a <a href=#call><code>Call</code></a> object if there is a call in the 'connected' state. Otherwise it must return 'null'.
+
+</p><p>The IDL attribute <dfn id=telephony-calls title=telephony-calls><code>calls</code></dfn> must return an array of all <a href=#call><code>Call</code></a> objects which are not in the disconnected state.
+
+</p><p>The IDL attribute <dfn id=telephony-mic title=telephony-mic><code>mic</code></dfn> must return a reference to the <a href=#microphone><code>Microphone</code></a> object.
+
+</p><p>The IDL attribute <dfn id=telephony-speaker title=telephony-speaker><code>speaker</code></dfn> must return a reference to the <a href=#speaker><code>Speaker</code></a> object.
+
+</p><p>The IDL attribute <dfn id=telephony-donotdisturb title=telephony-doNotDisturb><code>doNotDisturb</code></dfn> is a 
+  <span>boolean attribute</span> that controls whether incoming calls are enabled, potentially
+  overriding user preferences. The attribute must initially be false.
+
+</p><p>The IDL attribute <dfn id=handler-onincomingcall title=handler-onincomingcall><code>onincomingcall</code></dfn> is an event handler for the <code title=event-incomingcall>incomingcall</code> DOM Event.
+
+
+</p><p> The <dfn id=telephony-newcall title=telephony-newCall><code>newCall</code></dfn> method when invoked it must run the following steps:
+
+  </p><ol>
+
+   <li><p>Let <var title="">calls</var> be <span>the array of instantiated calls</span>. 
+   </p></li><li><p>If <var>calls</var> contains a <a href=#call><code>Call</code></a> object corresponding to the telephone number passed as parameter, then return such a <a href=#call><code>Call</code></a> object.
+   </p></li><li><p>Otherwise create a new <a href=#call><code>Call</code></a> object and:
+   </p><ol>
+	<li>set  <var>readyState</var> to 'new'  </li>
+        <li>set  <var>caller</var> to the user MSISDN </li>
+        <li>set <var>called</var> to the telephone number passed as parameter</li>
+        <li>add the <a href=#call><code>Call</code></a> object to the <var>calls</var> array</li>
+   </ol>  
+ </li></ol>
+
+</div>
+
+<h3 id=the-call-interface><span class=secno>4.2 </span>The Call interface</h3>
+
+<p>The <a href=#call><code>Call</code></a> interface represents a telephony call
+
+</p><pre class=idl>
+interface <dfn id=call>Call</dfn> : <span>EventTarget</span> {
+   readonly attribute DOMString? <a href=#call-caller title=call-caller>caller</a>;     
+   readonly attribute DOMString <a href=#call-called title=call-called>called</a>;
+
+   attribute boolean <a href=#call-hidenumber title=call-hideNumber>hideNumber</a>;  
+
+   readonly attribute double? <a href=#call-duration title=call-duration>duration</a>;
+
+
+   readonly attribute DOMString? <a href=#call-readystate title=call-readyState>readyState</a>; 
+
+   attribute Function? <a href=#handler-onconnect title=handler-onconnect>onconnect</a>;
+   attribute Function? <a href=#handler-ondisconnect title=handler-ondisconnect>ondisconnect</a>;
+   attribute Function? <a href=#handler-onreadystatechange title=handler-onreadystatechange>onreadystatechange</a>;
+   attribute Function? <a href=#handler-onerror title=handler-onerror>onerror</a>;
+
+   void <a href=#call-connect title=call-connect>connect</a>();
+
+   void <a href=#call-sendtones title=call-sendTones>sendTones</a>(DOMString tones,
+                 optional unsigned long toneDuration,
+                 optional unsigned long intervalDuration);
+
+   void <a href=#call-answer title=call-answer>answer</a>(); 
+
+   void <a href=#call-disconnect title=call-disconnect>disconnect</a>();
+
+   void <a href=#call-hold title=call-hold>hold</a>();
+
+   void <a href=#call-resume title=call-resume>resume</a>();
+  }
+
+
+</pre>
+
+<dl class=domintro>
+  <dt><var title="">call</var> . <a href=#call-connect><code title=call-connect>connect</code></a>()</dt>
+    <dd>
+        <p>Request to initiate a telephone call</p>
+   </dd>
+
+ <dt><var title="">call</var> . <a href=#call-disconnect><code title=call-disconnect>disconnect</code></a>()</dt>
+    <dd>
+        <p>Request to end (hang) a telephone call</p>
+   </dd>
+
+  <dt><var title="">call</var> . <a href=#call-hold><code title=call-hold>hold</code></a>()</dt>
+    <dd>
+        <p>Request to put on hold a telephone call</p>
+   </dd>
+
+   <dt><var title="">call</var> . <a href=#call-resume><code title=call-resume>resume</code></a>()</dt>
+    <dd>
+        <p>Request to resume a telephone call that has been previously put on hold</p>
+   </dd>
+
+  <dt><var title="">call</var> . <a href=#call-answer><code title=call-answer>answer</code></a>()</dt>
+    <dd>
+        <p>Request to answer an incoming call</p>
+   </dd>
+
+  <dt><var title="">call</var> . <a href=#call-sendtones><code title=call-sendtones>sendTones</code></a>(tones,toneDuration,intervalDuration)</dt>
+    <dd>
+        <p>Request to send tones of a certain duration during a particular interval</p>
+   </dd>
+
+  <dt><var title="">call</var> . <a href=#call-caller><code title=call-caller>caller</code></a></dt>
+    <dd>
+        <p>Returns who is calling. </p>
+   </dd>
+
+ <dt><var title="">call</var> . <a href=#call-called><code title=call-called>called</code></a></dt>
+    <dd>
+        <p>Returns who is being called. </p>
+   </dd>
+
+  <dt><var title="">call</var> . <a href=#call-duration><code title=call-duration>duration</code></a></dt>
+    <dd>
+        <p>Duration of the call in seconds. </p>
+   </dd>
+
+   <dt><var title="">call</var> . <a href=#call-hidenumber><code title=call-hideNumber>hideNumber</code></a></dt>
+    <dd>
+        <p>If true indicates that it will be requested to hide the caller number. </p>
+   </dd>
+
+<dt><var title="">call</var> . <a href=#call-readystate><code title=call-readyState>readyState</code></a></dt>
+    <dd>
+        <p>The status of the call: ("new", "connecting","alerting","connected","disconnecting","disconnected","onhold","incoming")</p>
+    </dd>
+</dl>
+
+
+<div class=impl>
+   <p>The IDL attribute <dfn id=call-caller title=call-caller><code>caller</code></dfn> must return a DOMString corresponding to the MSISDN of the party who is calling. If the MSISDN is not disclosed then it must return null
+
+</p><p>The IDL attribute <dfn id=call-called title=call-called><code>called</code></dfn> must return a DOMString corresponding to the MSISDN of the party who is being called. 
+
+</p><p>The IDL attribute <dfn id=call-duration title=call-duration><code>duration</code></dfn> must return the duration of the call in seconds if the <var>readyState</var> attribute is not equal to 'new'. Otherwise it must return null. 
+
+</p><p>The IDL attribute <dfn id=call-hidenumber title=call-hideNumber><code>hideNumber</code></dfn> allows to control whether the call will disclose the origin number or not. It must be initialized to the false value. 
+
+</p><p>The IDL attribute <dfn id=call-readystate title=call-readyState><code>readyState</code></dfn> must return the current status of the call. It must be one of the following values: 
+
+
+</p><dl>
+	<dt><dfn id=call-status-new title=call-status-new><code>new</code></dfn> (string value 'new')</dt>
+	<dd>The call handler object has been instantiated and no other interaction has taken place</dd>
+        <dt><dfn id=call-status-connecting title=call-status-connecting><code>connecting</code></dfn> (string value 'connecting')</dt>
+	<dd>A request to establish the call has been made and it is progressing</dd>
+        <dt><dfn id=call-status-alerting title=call-status-alerting><code>alerting</code></dfn> (string value 'alerting')</dt>
+	<dd>The destination number has been reached and alerting is taking place</dd>
+        <dt><dfn id=call-status-connected title=call-status-connected><code>connected</code></dfn> (string value 'connected')</dt>
+	<dd>The call is ongoing</dd>
+        <dt><dfn id=call-status-disconnecting title=call-status-disconnecting><code>disconnecting</code></dfn> (string value 'disconnecting')</dt>
+	<dd>A request to disconnect the call has been made and it is progressing</dd>
+        <dt><dfn id=call-status-disconnected title=call-status-disconnected><code>disconnected</code></dfn> (string value 'disconnected')</dt>
+	<dd>The call has been disconnected</dd>
+        <dt><dfn id=call-status-onhold title=call-status-onhold><code>onhold</code></dfn> (string value 'onhold')</dt>
+	<dd>The call has been put on hold</dd>
+        <dt><dfn id=call-status-incoming title=call-status-incoming><code>incoming</code></dfn> (string value 'incoming')</dt>
+	<dd>An incoming call who has not been answered yet.</dd>
+</dl>
+
+<p>The IDL attribute <dfn id=handler-onreadystatechange title=handler-onreadystatechange><code>onreadystatechange</code></dfn> is an event handler for the <code>readystatechange</code> DOM Event
+
+</p><p>The IDL attribute <dfn id=handler-onconnect title=handler-onconnect><code>onconnect</code></dfn> is an event handler that must be invoked when a call reaches the 'connected' state. 
+
+</p><p>The IDL attribute <dfn id=handler-ondisconnect title=handler-ondisconnect><code>ondisconnect</code></dfn> is an event handler that must be invoked when a call reaches the 'disconnected' state.
+
+</p><p>The IDL attribute <dfn id=handler-onerror title=handler-onerror><code>onerror</code></dfn> is an event handler that must be invoked when an error occurs.
+
+</p><p>The <dfn id=call-connect title=call-connect><code>connect</code></dfn> method when invoked must run the following steps:
+
+</p><ol>
+	<li><p>If the value of readyState is 'connected' raise an <code>INVALID_STATE</code> exception
+	</p></li><li><p>Otherwise make a request to the telephony system to dial in the telephone number in the <code>called</code> attribute. If the request is acknowledged then </p></li><li><p>Set  <var>readyState</var> to 'connecting'. <span>queue a task</span> to <span>fire a simple event</span> named  <code title=event-Call-readystatechange>readystatechange</code>. And finally return to the caller and <span>queue a task</span> to monitor call connection progress. If there is an error invoke the onerror event handler.
+</p></li></ol>
+
+<p>The task in charge of monitoring call progress once it is notified of call connection it must set <var>readyState</var> to 'connected' and <span>queue a task</span> to <span>fire a simple event</span> named  <code title=event-Call-readystatechange>readystatechange</code>. 
+</p><p>The task in charge of monitoring call progress when it is notified of call alerting tones it must set <var>readyState</var> to 'alerting' and <span>queue a task</span> to <span>fire a simple event</span> named  <code title=event-Call-readystatechange>readystatechange</code>.
+If the call is not finally answered such a task must set <var>readyState</var> to 'disconnected' and <span>queue a task</span> to <span>fire a simple event</span> named  <code title=event-Call-readystatechange>readystatechange</code>. If there is any error the onerror handler must be invoked. 
+
+</p><p>The <dfn id=call-disconnect title=call-disconnect><code>disconnect</code></dfn> method when invoked must run the following steps:
+
+</p><ol>
+	<li><p>If <var>readyState</var> is not equal to 'connecting', 'alerting', 'connected' or 'onhold' raise an <code>INVALID_STATE</code> exception
+        </p></li><li><p>Otherwise make a request to the telephony system to hang up the call. If the request is acknowledged then set <var>readyState</var> to 'disconnecting'. 
+        </p></li><li><p><span>queue a task</span> to <span>fire a simple event</span> named  <code title=event-Call-readystatechange>readystatechange</code>
+  at the <a href=#call><code>Call</code></a>. And finally return to the caller and <span>queue a task</span> to receive disconnecting progress. 
+        </p></li><li><p>If there is an error invoke the onerror eventhandler. 
+</p></li></ol>
+
+<p>The task in charge of monitor call disconnection progress once it is notified of call disconnection it must set <var>readyState</var> to 'disconnected' and <span>queue a task</span> to <span>fire a simple event</span> named  <code title=event-Call-readystatechange>readystatechange</code>. If there is any error the onerror handler must be invoked. 
+
+</p><p>The <dfn id=call-hold title=call-hold><code>hold</code></dfn> method when invoked must run the following steps:
+
+</p><ol>
+	<li><p>If <var>readyState</var> is not equal to 'connected'  raise an <code>INVALID_STATE</code> exception
+        </p></li><li><p>Otherwise make a request to the telephony system to hold the call. If the request is acknowledged then set <var>readyState</var> to 'onhold'. 
+        </p></li><li><p><span>queue a task</span> to <span>fire a simple event</span> named  <code title=event-Call-readystatechange>readystatechange</code>
+  at the <a href=#call><code>Call</code></a>. And finally return to the caller
+        </p></li><li><p>If there is an error invoke the onerror eventhandler. 
+</p></li></ol>
+
+<p>The <dfn id=call-resume title=call-resume><code>resume</code></dfn> method when invoked must run the following steps:
+
+</p><ol>
+	<li><p>If <var>readyState</var> is not equal to 'onhold' raise an <code>INVALID_STATE</code> exception
+        </p></li><li><p>Otherwise make a request to the telephony system to resume the call. If the request is acknowledged then set <var>readyState</var> to 'connected'. 
+        </p></li><li><p><span>queue a task</span> to <span>fire a simple event</span> named  <code title=event-Call-readystatechange>readystatechange</code>
+  at the <a href=#call><code>Call</code></a>. And finally return to the caller
+        </p></li><li><p>If there is an error invoke the onerror eventhandler. 
+</p></li></ol>
+
+<p>The <dfn id=call-answer title=call-answer><code>answer</code></dfn> method when invoked must run the following steps:
+
+</p><ol>
+	<li><p>If <var>readyState</var> is not equal to 'incoming' raise an <code>INVALID_STATE</code> exception
+        </p></li><li><p>Otherwise make a request to the telephony system to answer the call. If the request is acknowledged then set <var>readyState</var> to 'connecting'. 
+        </p></li><li><p> <span>queue a task</span> to <span>fire a simple event</span> named  <code title=event-Call-readystatechange>readystatechange</code>
+  at the <a href=#call><code>Call</code></a>. And finally return to the caller and set up all the infrastructure to receive connecting progress
+        </p></li><li><p>If there is an error invoke the onerror eventhandler. 
+</p></li></ol>
+
+<p>The <dfn id=call-sendtones title=call-sendTones><code>sendTones</code></dfn> method when invoked must run the following steps:
+
+</p><ol>
+	<li><p>If <var>readyState</var> is not equal to 'connected' raise an <code>INVALID_STATE</code> exception
+        </p></li><li><p>Otherwise make a request to the telephony system to send the tones to the current call. If the request is acknowledged then return to the caller
+        </p></li><li><p>If there is an error invoke the onerror eventhandler. 
+</p></li></ol>
+
+</div>
+
+
+<h3 id=the-speaker-interface><span class=secno>4.3 </span>The Speaker interface</h3>
+
+<p>The <a href=#speaker><code>Speaker</code></a> interface allows to control the Speaker hardware associated to telephone calls. 
+
+</p><pre class=idl>
+interface <dfn id=speaker>Speaker</dfn> {
+   void <a href=#speaker-on title=speaker-on>on</a>();
+   
+   void <a href=#speaker-off title=speaker-off>off</a>();
+ 
+   attribute double <a href=#speaker-volume title=speaker-volume>volume</a>; 
+  }
+
+</pre>
+
+<dl class=domintro>
+  <dt><var title="">speaker</var> . <a href=#speaker-on><code title=speaker-on>on</code></a>()</dt>
+    <dd>
+        <p>Request to turn on the speaker</p>
+   </dd>
+
+  <dt><var title="">speaker</var> . <a href=#speaker-off><code title=speaker-off>off</code></a>()</dt>
+    <dd>
+        <p>Request to turn off the speaker</p>
+   </dd>
+
+  <dt><var title="">speaker</var> . <a href=#speaker-off><code title=speaker-off>volume</code></a></dt>
+    <dd>
+        <p>Returns the current speaker volume multiplier, as a number in
+    the range 0.0 to 1.0, where 0.0 is the quietest and 1.0 the
+    loudest.
+</p><p>Can be set, to change the volume multiplier.</p>
+
+    <p>Throws an <code>INDEX_SIZE_ERR</code> if the new value is not
+    in the range 0.0 .. 1.0.</p>
+
+   </dd>
+</dl>
+
+<div class=impl>
+
+        <p>The <dfn id=speaker-volume title=speaker-volume><code>volume</code></dfn> attribute 
+  attribute, on getting, must return the   <a href=#speaker><code>Speaker</code></a>'s <span> volume
+  multiplier</span>, and on setting, if the new value is in the range
+  0.0 to 1.0 inclusive, must set the <a href=#speaker><code>Speaker</code></a>'s
+  <span> volume multiplier</span> to the new value. If the new value is outside the
+  range 0.0 to 1.0 inclusive, then, on setting, an
+  <code>INDEX_SIZE_ERR</code> exception must be raised instead.</p>
+
+	<p>The <dfn id=speaker-on title=speaker-on><code>on</code></dfn> method when invoked must run the following steps:
+
+</p><ol>
+	<li><p>Send a request to the speaker control system to turn the speaker on.  
+</p></li></ol>
+
+<p>The <dfn id=speaker-off title=speaker-off><code>on</code></dfn> method when invoked must run the following steps:
+
+</p><ol>
+	<li><p>Send a request to the speaker control system to turn the speaker off.  
+</p></li></ol>
+
+</div>
+
+<h3 id=the-microphone-interface><span class=secno>4.4 </span>The Microphone interface</h3>
+
+<p>The <a href=#microphone><code>Microphone</code></a> interface allows to control the microphone hardware associated to telephone calls.
+
+</p><pre class=idl>interface <dfn id=microphone>Microphone</dfn> {
+  void <a href=#mic-mute title=mic-mute>mute</a>();
+  void <span title=mic-unumte>unmute</span>();
+ 
+  attribute double <a href=#mic-volume title=mic-volume>volume</a>;
+}
+</pre>
+
+
+<dl class=domintro>
+  <dt><var title="">mic</var> . <a href=#speaker-on><code title=speaker-on>mute</code></a>()</dt>
+    <dd>
+        <p>Request to mute the mic</p>
+   </dd>
+
+  <dt><var title="">mic</var> . <a href=#speaker-off><code title=speaker-off>unmute</code></a>()</dt>
+    <dd>
+        <p>Request to unmute the mic</p>
+   </dd>
+
+  <dt><var title="">mic</var> . <a href=#speaker-off><code title=speaker-off>volume</code></a></dt>
+    <dd>
+        <p>Returns the current mic volume multiplier, as a number in
+    the range 0.0 to 1.0, where 0.0 is the quietest and 1.0 the
+    loudest.
+
+</p><p>Can be set, to change the volume multiplier.</p>
+
+    <p>Throws an <code>INDEX_SIZE_ERR</code> if the new value is not
+    in the range 0.0 .. 1.0.</p>
+
+   </dd>
+</dl>
+
+
+<div class=impl>
+<p>The <dfn id=mic-volume title=mic-volume><code>volume</code></dfn> attribute 
+  attribute, on getting, must return the   <a href=#microphone><code>Microphone</code></a>'s <span> volume
+  multiplier</span>, and on setting, if the new value is in the range
+  0.0 to 1.0 inclusive, must set the <a href=#microphone><code>Microphone</code></a>'s
+  <span> volume multiplier</span> to the new value. If the new value is outside the
+  range 0.0 to 1.0 inclusive, then, on setting, an
+  <code>INDEX_SIZE_ERR</code> exception must be raised instead.</p>
+
+<p>The <dfn id=mic-mute title=mic-mute><code>mute</code></dfn> method when invoked must run the following steps:
+
+</p><ol>
+	<li><p>Send a request to the microphone control system to be muted.  
+</p></li></ol>
+
+<p>The <dfn id=mic-unmute title=mic-unmute><code>unmute</code></dfn> method when invoked must run the following steps:
+
+</p><ol>
+	<li><p>Send a request to the microphone control system to be unmuted.  
+</p></li></ol>
+
+</div>
+
+<h3 id=the-incomingcallevent><span class=secno>4.5 </span>The IncomingCallEvent</h3>
+
+<pre class=idl>interface <dfn id=incomingcallevent>IncomingCallEvent</dfn> : Event {
+   readonly attribute Call call;
+}
+</pre>
+
+
+<h2 class=no-num id=acknowledgements>Acknowledgements</h2>
+
+<p>WAC Device Specs AC
+</p></body></html>
