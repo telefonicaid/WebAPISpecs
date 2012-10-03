@@ -111,12 +111,31 @@
       <dl title="[NoInterfaceObject]
                  interface Telephony : EventTarget"
           class="idl">
-        <dt>attribute boolean muted</dt>
+        <dt>attribute boolean speakerEnabled</dt>
+        <dd>Indicates whether the system's speaker is enabled or disabled.</dd>
+
+        <dt>attribute boolean headsetEnabled</dt>
+        <dd>Indicates whether the headset attached to the system is enabled or disabled.</dd>
+
+        <dt>attribute double audioVolume</dt>
+        <dd>Indicates the volume of the active audio output (speaker or headset) ranging from 0.0 (silent) to 1.0 (loudest).</dd>
+
+        <dt>attribute boolean audioMuted</dt>
+        <dd>Indicates whether the active audio output (speaker or headset) is muted or unmuted.
+        </dd>
+
+        <dt>attribute double micVolume</dt>
+        <dd>Indicates the volume of the microphone input level ranging from 0.0 (silent) to 1.0 (loudest).</dd>
+
+        <dt>attribute boolean micMuted</dt>
         <dd>Indicates whether the system's microphone is muted or unmuted.
         </dd>
 
-        <dt>attribute boolean speakerEnabled</dt>
-        <dd>Indicates whether the system's speaker is enabled or disabled.</dd>
+        <dt>readonly attribute DOMString[] ownTelephoneNumbers</dt>
+        <dd>Indicates the telephone number, or list thereof, associated to this subscription to the Telephony service.</dd>
+
+        <dt>readonly attribute DOMString[] emergencyNumbers</dt>
+        <dd>Indicates the telephone number, or list thereof, of the emergency service in current geographical area.</dd>
 
         <dt>readonly attribute TelephonyCall active</dt>
         <dd>Represents the <a>TelephonyCall</a> that is <strong>active</strong>.</dd>
@@ -124,15 +143,11 @@
         <dt>readonly attribute TelephonyCall[] calls</dt>
         <dd>Returns an array with the list of instantiated calls. The attribute MUST be initialized to an empty array.</dd>
 
-        <dt> TelephonyCall dial (in DOMString number)</dt>
-        <dd>Allows to initiate a new <a>TelephonyCall</a> to a destination <code>number</code>.</dd>
-
-        <dt>void startTone(in DOMString tone)</dt>
-        <dd>This method emits a DTMF tone in the <a>active call</a>. The <code>tone</code> parameter
-        with values (1-9; A-D; *; #) indicates the DTMF tone to be emitted.</dd>
-
-        <dt>void stopTone()</dt>
-        <dd>This method allows to stop the DTMF tone being emitted in the <a>active call</a>.</dd>
+        <dt> TelephonyCall dial (in DOMString number,in optional Boolean isOwnNumberHidden,in optional Boolean
+        isRecorded)</dt>
+        <dd>Allows to initiate a new <a>TelephonyCall</a> using this telephony service to a destination
+        <code>number</code> indicating whether the own number is to be hidden to the callee and whether the call is
+        intended to be recorded. </dd>
 
         <dt class="no-docs">
           attribute EventHandler onincoming
@@ -144,11 +159,29 @@
         <dd></dd>
       </dl>
 
-      <p>The IDL attribute <code>muted</code> MUST return <code>true</code>/<code>false</code>
-      when the microphone is respectively muted/unmuted.
-
       <p>The IDL attribute <code>speakerEnabled</code> MUST
       return <code>true</code>/<code>false</code> when the speakers are respectively enabled/disabled.
+
+      <p>The IDL attribute <code>headsetEnabled</code> MUST
+      return <code>true</code>/<code>false</code> when the headset is respectively enabled/disabled.
+
+      <p>The IDL attribute <code>audioVolume</code> MUST return the normalized volume of the active audio output
+      (speaker or headset) ranging from 0.0 (silent) to 1.0 (loudest).
+
+      <p>The IDL attribute <code>audioMuted</code> MUST return <code>true</code>/<code>false</code>
+      when the active audio output (speaker or headset) is respectively muted/unmuted.
+
+      <p>The IDL attribute <code>micVolume</code> MUST return the normalized value of the microphone input level
+      ranging from 0.0 (silent) to 1.0 (loudest).
+
+      <p>The IDL attribute <code>micMuted</code> MUST return <code>true</code>/<code>false</code>
+      when the microphone is respectively muted/unmuted.
+
+      <p>The IDL attribute <code>ownTelephoneNumbers</code> MUST return the  telephone number (MSISDN) associated to
+      this subscription to the Telephony service, or a list thereof (e.g. in case of Dual SIM with two associated numbers).
+
+      <p>The IDL attribute <code>emergencyNumbers</code> MUST return the number of the emergency service in current
+      geographical area, or a list thereof.
 
       <p>The IDL attribute <code>active</code> MUST return a <a>TelephonyCall</a>
       object if there is an <a>active call</a>. Otherwise it MUST return <code>null</code>.
@@ -160,27 +193,31 @@
       <a>fire a simple event</a> named <code>callschanged</code> at <code>Telephony</code> object.
 
       <p>Whenever there is a change in the active <a>TelephonyCall</a>, the <a>user agent</a> MUST
-                                              set the <code>active</code> attribute  to the new <a>active call</a>.
+      set the <code>active</code> attribute  to the new <a>active call</a>.
 
       <p> The <code>dial</code> method when invoked MUST run the following steps:
         <ol>
          <li>Let <var>telCall</var> be a newly created <code>TelephonyCall</code> object</li>
-         <li><p>Set <code>number</code> of <var>telCall</var> to the telephone number specified
+         <li>Set <code>number</code> of <var>telCall</var> to the telephone number specified
               in the <code>number</code> parameter
-         <li><p>If <code>calls</code> already contains a <a>TelephonyCall</a> object associated to the <code>number</code> parameter,
+         <li>If <code>calls</code> already contains a <a>TelephonyCall</a> object associated to the <code>number</code> parameter,
          then go to <a href="#error-step">error steps</a>.
-         <li><p>Otherwise, execute the following steps:
+         <li>Otherwise, execute the following steps:
 
           <ol>
               <li>Make a request to the telephony system to dial in the telephone number passed
-                    in the <code>number</code> parameter. If the request progress successfully then
+                    in the <code>number</code> parameter, and in case the <code>isOwnNumberHidden</code> is
+                    <code>true</code> with an indication that own number is to be hidden. If the request progress
+                    successfully then
                 <ol>
-                  <li><p>Add <var>telCall</var> to the <code>calls</code> array
-                  <li><p>Set the <code>state</code> of <var>telCall</var> to <a href="#call-status-dialing"><code>dialing</code></a>.
-                  <li><p><a>Queue a task</a> to <a>fire a simple event</a> named <code>statechange</code> at the <var>telCall</var> object.
-                  <li><p>and finally return to the caller and <a>queue a task</a> <i>TCallControl</i> to monitor call connection progress.
+                  <li>Add <var>telCall</var> to the <code>calls</code> array
+                  <li><a>queue a task</a> to record <var>telCall</var> once connected if the value passed in the
+                  <code>isRecorded</code> parameter is <code>true</code>.
+                  <li>Set the <code>state</code> of <var>telCall</var> to <a href="#call-status-dialing"><code>dialing</code></a>.
+                  <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>statechange</code> at the <var>telCall</var> object.
+                  <li>and finally return to the caller and <a>queue a task</a> <i>TCallControl</i> to monitor call flow progress.
                 </ol>
-                <li><p>If during further steps for call connection there is an error go to <a href="#error-steps">error steps</a>
+                <li>If during further steps for call connection there is an error go to <a href="#error-steps">error steps</a>
           </ol>
         </ol>
 
@@ -191,22 +228,13 @@
         <li>Remove the corresponding <a>TelephonyCall</a> object from the <code>calls</code> array at <code>Telephony</code>.</li>
       </ol>
 
-      <p>The <code>startTone</code> method when invoked MUST make a request to the telephony system
-      to start sending the tone passed in the <code>tone</code>  parameter to the <strong>active</strong> call.
-      If the request is acknowledged then return to the caller. If there is an error <a>queue a task</a> <a>to fire a simple event</a>
-      named <code>error</code> at the <a>active call</a> object.
-
-      <p>The <code>stopTone</code> method when invoked MUST make a request to the telephony system
-      to stop sending tones to the <a>active call</a>. If the request is acknowledged then return to the caller.
-      If there is an error <a>queue a task</a> to fire a simple event
-      named <code>error</code> at the <a>active call</a> object.
-
       <p>Upon a new incoming call, the <a>user agent</a> MUST:
         <ol>
           <li>Let <var title="">incomingCall</var> be a new instance of <code>TelephonyCall</code>.
           <li>Set the <code>state</code> of <var>incomingCall</var> to <a href="#call-status-incoming"><code>incoming</code></a>
           <li>Add <var title="">incomingCall</var> to the <code>calls</code> array
-          <li><a>queue a task</a> to <a>fire an event</a> named <code><a>incoming</a></code> at the <a>Telephony</a> object.
+          <li><a>queue a task</a> to <a>fire an event</a> named <code><a>incoming</a></code> at the <a>Telephony</a> object and
+          <li><a>queue a task</a> <i>TCallControl</i> to monitor call flow progress.
         </ol>
 
         <p class="issue">
@@ -273,6 +301,24 @@
         <dt>void resume()</dt>
         <dd>This method resumes a telephone call that had been previously put on hold.</dd>
 
+        <dt>void redirect(in DOMString redirectNumber)</dt>
+        <dd>This method redirects an incoming telephone call to another telelphone number.</dd>
+
+        <dt>void startTone(in DOMString tone)</dt>
+        <dd>This method starts emitting a DTMF tone in this TelephonyCall object. The <code>tone</code> parameter
+        with values (1-9; A-D; *; #) indicates the DTMF tone to be emitted.</dd>
+
+        <dt>void stopTone()</dt>
+        <dd>This method allows to stop the DTMF tone being emitted in this TelephonyCall object.</dd>
+
+        <dt>void sendTone(in DOMString tone)</dt>
+        <dd>This method emits a DTMF tone with default duration in this TelephonyCall object.
+        The <code>tone</code> parameter with values (1-9; A-D; *; #) indicates the DTMF tone to be emitted.</dd>
+
+        <dt>void record(in boolean callrecording)</dt>
+        <dd>This method allows to indicate whether the call is to be recorded or not when invoked respectively
+        with the <code>callrecording</code> parameter set to <code>true</code>/<code>false</code>.</dd>
+
         <dt class="no-docs">
           attribute EventHandler onstatechange
         </dt>
@@ -315,6 +361,10 @@
         <dd></dd>
         <dt class="no-docs">
           attribute EventHandler onresuming
+        </dt>
+        <dd></dd>
+        <dt class="no-docs">
+          attribute EventHandler onredirecting
         </dt>
         <dd></dd>
         <dt class="no-docs">
@@ -361,6 +411,9 @@
 
         <dt><dfn id="call-status-error"><code>error</code></dfn> (string value 'error')</dt>
         <dd>There has been an error at some point in time</dd>
+
+        <dt><dfn id="call-status-redirecting"><code>redirecting</code></dfn> (string value 'redirecting')</dt>
+        <dd>The call is being redirected to another telephone number</dd>
       </dl>
 
       <p class="issue">
@@ -388,14 +441,15 @@
       <p>If there is any error during call progressing then the <a href="#error-steps">error steps</a> MUST be executed.
 
       <p>The <code>disconnect</code> method when invoked MUST issue a request to the telephony system to disconnect the call. If the request is acknowledged
-              then set <code>state</code> to <a href="#call-status-disconnecting"><code>disconnecting</code></a>.
+      then set <code>state</code> to <a href="#call-status-disconnecting"><code>disconnecting</code></a>.
 
-      <p>When <i>TCallControl</i> is notified of actual call disconnection it MUST run the <a href="#steps-disconnect">following steps</a>.
+      <p>When <i>TCallControl</i> is notified of actual call disconnection it MUST set <code>state</code>
+      to <a href="#call-status-disconnected"><code>disconnected</code></a>.
 
       <p>The <code>hold</code> method when invoked MUST run the following steps:
       <ol>
-              <li><p>If <code>state</code> is not equal to <code>connected</code>  raise an <code>ILLEGAL_STATE</code> exception
-              <li><p>Otherwise make a request to the telephony system to hold the call. If the request is acknowledged then set
+              <li>If <code>state</code> is not equal to <code>connected</code>  raise an <code>ILLEGAL_STATE</code> exception
+              <li>Otherwise make a request to the telephony system to hold the call. If the request is acknowledged then set
               <code>state</code> to <a href="#call-status-holding"><code>holding</code></a>.
       </ol>
 
@@ -404,8 +458,8 @@
 
       <p>The <code>resume</code> method when invoked MUST run the following steps:
       <ol>
-          <li><p>If <code>state</code> is not equal to 'held' raise an <code>ILLEGAL_STATE</code> exception
-          <li><p>Otherwise make a request to the telephony system to resume the call. If the request is acknowledged
+          <li>If <code>state</code> is not equal to 'held' raise an <code>ILLEGAL_STATE</code> exception
+          <li>Otherwise make a request to the telephony system to resume the call. If the request is acknowledged
           then set <code>state</code> to <a href="#call-status-resuming"><code>resuming</code></a>.
       </ol>
 
@@ -414,10 +468,47 @@
 
       <p>The <code>answer</code> method when invoked MUST run the following steps:
       <ol>
-              <li><p>If <code>state</code> is not equal to 'incoming' raise an <code>ILLEGAL_STATE</code> exception
-              <li><p>Otherwise make a request to the telephony system to answer the call.
+              <li>If <code>state</code> is not equal to 'incoming' raise an <code>ILLEGAL_STATE</code> exception
+              <li>Otherwise make a request to the telephony system to answer the call.
               If the request is acknowledged then set <code>state</code> to <a href="#connecting"><code>connecting</code></a>.
       </ol>
+
+      <p>The <code>redirect</code> method when invoked MUST run the following steps:
+      <ol>
+              <li>If <code>state</code> is not equal to 'incoming' raise an <code>ILLEGAL_STATE</code> exception
+              <li>Otherwise make a request to the telephony system to redirect the call to the number indicated in the
+              <code>redirectNumber</code> parameter. If the request is acknowledged then set <code>state</code> to
+              <a href="#call-status-redirecting"><code>redirecting</code></a>.
+      </ol>
+
+      <p>When <i>TCallControl</i> is notified that the call has been successfully redirected it MUST set <code>state</code>
+      to <a href="#call-status-disconnected"><code>disconnected</code></a>.
+      
+      <p>The <code>startTone</code> method when invoked MUST make a request to the telephony system
+      to start sending the tone passed in the <code>tone</code> parameter to this TelephonyCall object.
+      If the request is acknowledged then return to the caller. If there is an error <a>queue a task</a>
+      <a>to fire a simple event</a> named <code>error</code> at this TelephonyCall object.
+
+      <p>The <code>stopTone</code> method when invoked MUST make a request to the telephony system
+      to stop sending tones to this TelephonyCall object. If the request is acknowledged then return to the caller.
+      If there is an error <a>queue a task</a> to fire a simple event
+      named <code>error</code> at this TelephonyCall object.
+
+      <p>The <code>sendTone</code> method when invoked MUST make a request to the telephony system
+      to send the tone passed in the <code>tone</code> parameter to this TelephonyCall object with a default duration.
+      If the request is acknowledged then return to the caller. If there is an error <a>queue a task</a>
+      <a>to fire a simple event</a> named <code>error</code> at this TelephonyCall object.
+
+      <p>The <code>record</code> method when invoked with the <code>callrecording</code> parameter set to
+      <code>true</code> MUST make a request to the telephony system to start recording the call if the call is in 
+      <code>connected</code> state or otherwise once it reaches that state. If there is an error <a>queue a task</a>
+      <a>to fire a simple event</a> named <code>error</code> at this TelephonyCall object.
+      
+      <p>The <code>record</code> method when invoked with the <code>callrecording</code> parameter set to
+      <code>false</code> MUST make a request to the telephony system to stop recording the call, if it was being
+      recorded, or alternatively not to start recording it once the call to reaches the <code>connected</code> state if
+      the telephone system was waiting for the call to reach that status to start recording it. If there is an error
+      <a>queue a task</a> <a>to fire a simple event</a> named <code>error</code> at this TelephonyCall object.
 
       <section>
         <h2>Event handlers</h2>
@@ -479,6 +570,10 @@
             <tr>
               <td><strong><code>onresuming</code></strong></td>
               <td><code><dfn>resuming</dfn></code></td>
+            </tr>
+            <tr>
+              <td><strong><code>onredirecting</code></strong></td>
+              <td><code><dfn>redirecting</dfn></code></td>
             </tr>
             <tr>
               <td><strong><code>onerror</code></strong></td>
