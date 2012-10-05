@@ -31,27 +31,78 @@
   
 <body>
  <section id='abstract'>
-  <p>This specification defines a “Push API” that provides webapps (Web applications) with scripted access to server-sent application data, for simplicity referred to here as "Push messages" as delivered by "Push services". Push services are a way for servers to send messages to webapps, whether or not the webapp is active in a browser window.</p>
-  <p>Push messages may be delivered via various methods, either standardized (e.g. delivered via <a href="http://www.w3.org/TR/eventsource">[Server-Sent Events]</a> over connectionless network bearers such as SMS and OMA Push/SMS <a href="http://www.openmobilealliance.org/Technical/release_program/push_v2_3.aspx">[OMA-Push]</a>), or via browser-specific methods. The specific method to be used by a webapp is either selected by the user through selecting a Web Intent Push Service provider, or by the browser. The Push API is defined to promote compatibility with any underlying delivery method.</p>
+  <p>This specification defines a “Push API” that provides <a class="internalDFN" href="#dfn-webapp">webapps</a> with scripted access to server-sent application data, for simplicity referred to here as "Push messages" as delivered by "Push services". Push services are a way for application servers to send messages to <a class="internalDFN" href="#dfn-webapp">webapps</a>, whether or not the <a class="internalDFN" href="#dfn-webapp">webapp</a> is active in a browser window.</p>
+  <p>Push messages may be delivered via various methods, either via standardized protocols (e.g. Server-Sent Events [[!EVENTSOURCE]], <a href="http://www.3gpp.org/ftp/Specs/html-info/0340.htm">SMS</a> [[!GSM-SMS]], <a href="http://www.ietf.org/rfc/rfc3428.txt">SIP MESSAGE</a> [[!SIP-MESSAGE]], or <a href="http://www.openmobilealliance.org/Technical/release_program/push_v2_3.aspx">OMA Push</a> [[!OMA-Push]]), or via browser-specific methods. The specific method to be used by a <a class="internalDFN" href="#dfn-webapp">webapp</a> is either selected by the user through selecting a <a class="internalDFN" href="#dfn-intent-provider">Web Intent Push Service provider</a>, or by the browser. The Push API is defined to promote compatibility with any underlying delivery method.</p>
  </section>
  
  <section id='sotd'>
  </section> 
 
  <section class='informative' id="introduction"><h2>Introduction</h2>
-  <p>As defined here, Push services support delivery of server messages in the following contexts and related use cases:<ul>
-   <li>the user is actively involved in the use of a webapp: this relates to any normal use case in which a webapp user may benefit from Push messages while the user is actively using the webapp
-   <li>the user is not actively involved in the use of a webapp, but the webapp is active in a window of the browser or executing as a web worker: this relates to use cases such as social networking, messaging, web feed readers, etc in which the user may not be actively using a webapp but still benefits from Push messages being sent to (or via) the webapp, to keep the user up-to-date
-   <li>the webapp is not currently active in a browser window: this relates to use cases in which the user may close the webapp, but still benefits from the webapp being able to be restarted when a Push message is received, e.g. the WebRTC use case in which an incoming call can invoke the WebRTC webapp  
-   <li>multiple webapps are running, but Push messages are delivered only to the webapp that requested them, e.g. any normal use case in which multiple webapps are active in the browser and utilizing Push services
-   <li>multiple instances of the same webapp are active in the browser, and Push messages specific to each instance of the webapp are delivered only to the specific instance, e.g. when a mail webapp is active in two windows using different mail accounts
-   <li>multiple instances of the same webapp are active in different browsers, and Push messages are delivered to a set of instances of the webapp, e.g. when a mail webapp is active in two browsers using the samemail account</li>
-   <li>multiple instances of the same webapp are active in different browsers, and Push messages are delivered to all instances of the webapp, e.g. when a message is to be broadcasted to all users of the webapp
+  <p>As defined here, Push services support delivery of application server messages in the following contexts and related use cases:<ul>
+   <li>the user is actively involved in the use of a <a class="internalDFN" href="#dfn-webapp">webapp</a>: this relates to any normal use case in which a <a class="internalDFN" href="#dfn-webapp">webapp</a> user may benefit from Push messages while the user is actively using the <a class="internalDFN" href="#dfn-webapp">webapp</a>
+   <li>the user is not actively involved in the use of a <a class="internalDFN" href="#dfn-webapp">webapp</a>, but the <a class="internalDFN" href="#dfn-webapp">webapp</a> is active in a window of the browser or executing as a web worker: this relates to use cases such as social networking, messaging, web feed readers, etc in which the user may not be actively using a <a class="internalDFN" href="#dfn-webapp">webapp</a> but still benefits from Push messages being sent to (or via) the <a class="internalDFN" href="#dfn-webapp">webapp</a>, to keep the user up-to-date
+   <li>the <a class="internalDFN" href="#dfn-webapp">webapp</a> is not currently active in a browser window: this relates to use cases in which the user may close the <a class="internalDFN" href="#dfn-webapp">webapp</a>, but still benefits from the <a class="internalDFN" href="#dfn-webapp">webapp</a> being able to be restarted when a Push message is received, e.g. the WebRTC use case in which an incoming call can invoke the WebRTC <a class="internalDFN" href="#dfn-webapp">webapp</a>  
+   <li>multiple <a class="internalDFN" href="#dfn-webapp">webapps</a> are running, but Push messages are delivered only to the <a class="internalDFN" href="#dfn-webapp">webapp</a> that requested them, e.g. any normal use case in which multiple <a class="internalDFN" href="#dfn-webapp">webapps</a> are active in the browser and utilizing Push services
+   <li>multiple instances of the same <a class="internalDFN" href="#dfn-webapp">webapp</a> are active in the browser, and Push messages specific to each instance of the <a class="internalDFN" href="#dfn-webapp">webapp</a> are delivered only to the specific instance, e.g. when a mail <a class="internalDFN" href="#dfn-webapp">webapp</a> is active in two windows using different mail accounts
+   <li>multiple instances of the same <a class="internalDFN" href="#dfn-webapp">webapp</a> are active in different browsers, and Push messages are delivered to a set of instances of the <a class="internalDFN" href="#dfn-webapp">webapp</a>, e.g. when a mail <a class="internalDFN" href="#dfn-webapp">webapp</a> is active in two browsers using the samemail account</li>
+   <li>multiple instances of the same <a class="internalDFN" href="#dfn-webapp">webapp</a> are active in different browsers, and Push messages are delivered to all instances of the <a class="internalDFN" href="#dfn-webapp">webapp</a>, e.g. when a message is to be broadcasted to all users of the <a class="internalDFN" href="#dfn-webapp">webapp</a>
   </ul></p>
+  
+  <div class="example">
+	 <pre class="example highlight prettyprint">
+ var token = getGuid(); // get GUID as unique token
+ var mypush = requestRemotePermission(token);
+ mypush.onerror = function () {
+   alert("darn! "+e.message);
+   };
+ mypush.onsuccess = function () {
+   var activate = "http://example.com/push/activate?token="+token+
+     "&serviceUrl="+encodeURIComponent(mypush.serviceUrl)+
+     "&serverProtocols="+serverProtocols;
+   asyncXHR(activate); // send activation request to application server
+	 
+   mypush.wakeup = true;
+	 
+   mypush.onmessage = function (event) {
+     document.getElementById('message').innerHTML = event.data;
+   };
+ };
+ 
+/* Hypothetical end-to-end flow
+   +--------+           +--------+             +--------+           +--------+
+   | webapp |           |  user  |             |  push  |           |  app   |
+   |        |           | agent  |             | server |           | server |
+   +--------+           +--------+             +--------+           +--------+
+       |                    |                      |                     |
+   requestRemotePermission->|                      |                     |
+       |                    |                      |                     |
+       |              (user accepts)               |                     |
+       |                    |                      |                     |
+       |                    |<-setup push service->|                     |
+       |                    |                      |                     |
+       |<---success event---|                      |                     |
+       |                    |                      |                     |
+       |<--activate service with PushService attributes----------------->|
+       |                    |                      |                     |
+       |                    |                      |<----push message----|
+       |                    |                      |   per service API   |
+       |                    |                      |                     |
+       |                    |<----push message-----|                     |
+       |                    | per service protocol |                     |
+       |                    |                      |                     |
+       |            (match to webapp)              |                     |
+       |                    |                      |                     |
+       |<---message event---|                      |                     |
+       |                    |                      |                     |
+*/
+   </pre>
+  </div>
+  
  </section>
  
  <section id="conformance">
-  <p>This specification defines conformance criteria that apply to a single product: the <dfn><a>user agent</a></dfn> that implements the interfaces that it contains.</p>
+  <p>This specification defines conformance criteria that apply to a single product: the <dfn><a class="internalDFN" href="#dfn-user-agent">user agent</a></dfn> that implements the interfaces that it contains.</p>
   <p>Implementations that use ECMAScript to implement the APIs defined in this specification <em title="must" class="rfc2119">must</em> implement them in a manner consistent with the ECMAScript Bindings defined in the Web IDL specification [[!WEBIDL]], as this specification uses that specification and terminology.</p>
  </section>
  
@@ -61,16 +112,21 @@
         <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#fire-a-simple-event"> fires a simple event</a></dfn> are defined in [[!HTML5]].</p>
   <p>The terms <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#event-handlers"> event handlers</a></dfn> and
         <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#event-handler-event-type"> event handler event types</a></dfn> are defined in [[!HTML5]].</p>
+  <p>The term <dfn id="dfn-intent-provider">Web Intent Push Service provider</dfn> refers to a service implemented as described in [[!WEBINTENTS]], and offering Push API binding to event delivery via the service.</p> 
+  <p>The term <dfn id="dfn-push-server">push server</dfn> refers to a system via which a push service is provided.</p> 
+  <p>The term <dfn id="dfn-webapp">webapp</dfn> refers to Web applications, i.e. applications implemented using Web technologies, and executing within the context of a Web <a class="internalDFN" href="#dfn-user-agent">user agent</a>, e.g. a Web browser or other Web runtime environment.</p>
  </section>
 
  <section><h2>Security and privacy considerations</h2>
-  <p>To be provided.</p>
+  <p><a class="internalDFN" href="#dfn-user-agent">User agents</a> <em title="must" class="rfc2119">must not</em> provide Push API access to Webapps without the express permission of the user. <a class="internalDFN" href="#dfn-user-agent">User agents</a> <em title="must" class="rfc2119">must</em> acquire consent for permission through a user interface for each call to the <code>requestRemotePermission()</code> method, unless a prearranged trust relationship applies.</p>
+  <p><a class="internalDFN" href="#dfn-user-agent">user agent</a>s <em title="may" class="rfc2119">may</em> support prearranged trust relationships that do not require such per-request user interfaces.</p>
+  <p>Permissions that are preserved beyond the current browsing session <em title="must" class="rfc2119">must</em> be revocable.</p>
  </section> 
 
- <section id="pushframework"><h2>Push Framework</h2>
-  <p>There are different deployment alternatives to allow webapp servers to deliver Push messages to webapps. In a typical deployment webapp servers send push messages to a Push server, e.g. by a RESTful interface, which in turn delivers the message to the user agent on top of which the webapp is running. The user agent delivers then the Push message to the corresponding webapp to which the Push message was addressed.</p>
-  <p>This API allows webapps to ask the user for permission to receive Push messages and to provide the user agent with the necessary information to activate the Push service. For instance, the webapp provides a unique application token that is used by the webapp server when sending a message to the Push server to address an specific instance (or set thereof) of the application. In case several instances of a webapp register the same application token, e.g. in different user agents, then the Push server deliver Push messages addressed to that application token to all of those instances (e.g. when a mail webapp is active in two browsers using the same mail account)</p>
-  <p>Also the webapp may provide additional information in order to allow the Push server to verify that Push messages come from the right webapp server. Namely it can provide a public key that the Push server can use to verify that the Push message comes from the right webapp server, which has signed the message with the associated private key</p>
+ <section class='informative' id="pushframework"><h2>Push Framework</h2>
+  <p>There are different deployment alternatives to allow application servers to deliver Push messages to <a class="internalDFN" href="#dfn-webapp">webapps</a>. In a typical deployment application servers send push messages to a <a class="internalDFN" href="#dfn-push-server">push server</a>, e.g. by a RESTful interface, which in turn delivers the message to the <a class="internalDFN" href="#dfn-user-agent">user agent</a> providing the execution context for the <a class="internalDFN" href="#dfn-webapp">webapp</a>. The <a class="internalDFN" href="#dfn-user-agent">user agent</a> then delivers the Push message to the corresponding <a class="internalDFN" href="#dfn-webapp">webapp</a> to which the Push message was addressed.</p>
+  <p>This API allows <a class="internalDFN" href="#dfn-webapp">webapps</a> to ask the user for permission to receive Push messages and to provide the <a class="internalDFN" href="#dfn-user-agent">user agent</a> with the necessary information to activate the Push service. For instance, the <a class="internalDFN" href="#dfn-webapp">webapp</a> provides a unique application token that is used by the application server when sending a message to the <a class="internalDFN" href="#dfn-push-server">push server</a> to address an specific instance (or set thereof) of the application. In case several instances of a <a class="internalDFN" href="#dfn-webapp">webapp</a> register the same application token, e.g. in different <a class="internalDFN" href="#dfn-user-agent">user agents</a>, then the <a class="internalDFN" href="#dfn-push-server">push server</a> deliver Push messages addressed to that application token to all of those instances (e.g. when a mail <a class="internalDFN" href="#dfn-webapp">webapp</a> is active in two browsers using the same mail account)</p>
+  <p>Also the <a class="internalDFN" href="#dfn-webapp">webapp</a> may provide additional information in order to allow the <a class="internalDFN" href="#dfn-push-server">push server</a> to verify that Push messages come from the right application server. Namely it can provide a public key that the <a class="internalDFN" href="#dfn-push-server">push server</a> can use to verify that the Push message comes from the right application server, which has signed the message with the associated private key</p>
  </section>
  
  <section id="navigatorpush"><h2><a>NavigatorPush</a> Interface</h2>
@@ -83,38 +139,38 @@
  </section>
     
  <section id="pushmanager"><h1>The <a>PushManager</a> Interface</h1>
-  <p>This interface defines the operations that enable webapps to establish access to Push services.</p>
+  <p>This interface defines the operations that enable <a class="internalDFN" href="#dfn-webapp">webapps</a> to establish access to Push services.</p>
   <dl title="interface PushManager" class="idl">
    <dt>PushService requestRemotePermission(DOMString appToken, optional DOMString publicKey, optional DOMString algorithm)</dt>
-    <dd>Asks the user if they'd like to allow this webapp to receive Push messages. The webapp conveys an application token, which is a unique token generated by the application that identifies the instance (or set thereof) that is (are) intended to receivethe Push messages that are addressed to this application token by the webapp server. In case several instances of a webapp register the same application token, e.g. in different user agents, then the Push server <em title="must" class="rfc2119">must</em> deliver Push messages addressed to that application token to all of those instances(e.g. when a mail webapp is active in two browsers using the same mail account).  
-      <p>In order to verify that Push messages received by the Push server come from the right webapp server, the webapp server <em title="may" class="rfc2119">may</em> sign Push messages. In case messages are signed by the corresponding webapp server then the webapp <em title="must" class="rfc2119">must</em> include in the <code>publicKey</code> attribute the public key that the Push server can use to verify the signature of Push messages.The default signature algorithm is RSA-SHA256, which <em title="must" class="rfc2119">must</em> be supported by Push servers, although the webapp may propse the use of a different algorithm. If the webapp wants to indicate the use of a different signature algorithm it will indicate it in the <code>algorithm</code> attribute, which will be enconded according to [[!XMLSEC-ALGORITHMS]]</p>
-      <p>Upon success, a <code><a href="#pushservice">PushService</a></code> object is returned, with a Push service URL where the webapp server can send messages to this webapp. If the webapp has been granted permission already and is calling requestRemotePermission() again, the Push service URL will be returned without asking again for permission.</p>
+    <dd>Asks the user if they'd like to allow this <a class="internalDFN" href="#dfn-webapp">webapp</a> to receive Push messages. The <a class="internalDFN" href="#dfn-webapp">webapp</a> conveys an application token, which is a unique token generated by the application that identifies the instance (or set thereof) that is (are) intended to receivethe Push messages that are addressed to this application token by the application server. In case several instances of a <a class="internalDFN" href="#dfn-webapp">webapp</a> register the same application token, e.g. in different <a class="internalDFN" href="#dfn-user-agent">user agents</a>, then the <a class="internalDFN" href="#dfn-push-server">push server</a> <em title="must" class="rfc2119">must</em> deliver Push messages addressed to that application token to all of those instances(e.g. when a mail <a class="internalDFN" href="#dfn-webapp">webapp</a> is active in two browsers using the same mail account).  
+      <p>In order to verify that Push messages received by the <a class="internalDFN" href="#dfn-push-server">push server</a> come from the right server, the application server <em title="may" class="rfc2119">may</em> sign Push messages. In case messages are signed by the corresponding application server then the <a class="internalDFN" href="#dfn-webapp">webapp</a> <em title="must" class="rfc2119">must</em> include in the <code>publicKey</code> attribute the public key that the <a class="internalDFN" href="#dfn-push-server">push server</a> can use to verify the signature of Push messages.The default signature algorithm is RSA-SHA256, which <em title="must" class="rfc2119">must</em> be supported by <a class="internalDFN" href="#dfn-push-server">push server</a>s, although the <a class="internalDFN" href="#dfn-webapp">webapp</a> may propse the use of a different algorithm. If the <a class="internalDFN" href="#dfn-webapp">webapp</a> wants to indicate the use of a different signature algorithm it will indicate it in the <code>algorithm</code> attribute, which will be enconded according to [[!XMLSEC-ALGORITHMS]]</p>
+      <p>Upon success, a <code><a href="#pushservice">PushService</a></code> object is returned, with a Push service URL where the application server can send messages to this <a class="internalDFN" href="#dfn-webapp">webapp</a>. If the <a class="internalDFN" href="#dfn-webapp">webapp</a> has been granted permission already and is calling requestRemotePermission() again, the Push service URL will be returned without asking again for permission.</p>
    <dt>PushService checkRemotePermission(DOMString appToken)</dt>
-    <dd>Lets the webapp ask the browser if the webapp has been granted permission to receive Push messages, without bothering the user. The success callback would return the same <code><a href="#pushservice">PushService</a></code> object that <code>requestRemotePermission()</code> received, but if the user has never allowed notifications for the webapp the error callback would run.</dd>
+    <dd>Lets the <a class="internalDFN" href="#dfn-webapp">webapp</a> ask the browser if the <a class="internalDFN" href="#dfn-webapp">webapp</a> has been granted permission to receive Push messages, without bothering the user. The success callback would return the same <code><a href="#pushservice">PushService</a></code> object that <code>requestRemotePermission()</code> received, but if the user has never allowed notifications for the <a class="internalDFN" href="#dfn-webapp">webapp</a> the error callback would run.</dd>
   </dl>
   
-  <p>If the user permits webapp access to Push service upon a call to the <code>requestRemotePermission()</code> method, the <a>user agent</a> <em title="must" class="rfc2119">must</em> activate the service.</p>
+  <p>If the user permits <a class="internalDFN" href="#dfn-webapp">webapp</a> access to Push service upon a call to the <code>requestRemotePermission()</code> method, the <a class="internalDFN" href="#dfn-user-agent">user agent</a> <em title="must" class="rfc2119">must</em> activate the service.</p>
 
-  <p id="activateservice">The particular Push service used by the user agent is transparent to the webapp and the requirements for its activation are either unspecified or as defined <a href="#servicebindings">here</a>.</p>
+  <p id="activateservice">The particular Push service used by the <a class="internalDFN" href="#dfn-user-agent">user agent</a> is transparent to the <a class="internalDFN" href="#dfn-webapp">webapp</a> and the requirements for its activation are either unspecified or as defined <a href="#servicebindings">here</a>.</p>
  </section>
  
  <section id="pushservice"><h1>The <a>PushService</a> Interface</h1>
-  <p>The <dfn id="dom-pushservice" title="dom-PushService"><code>PushService</code></dfn> interface enables webapps to access Push services that have been permitted by the user.</p>
+  <p>The <dfn id="dom-pushservice" title="dom-PushService"><code>PushService</code></dfn> interface enables <a class="internalDFN" href="#dfn-webapp">webapps</a> to access Push services that have been permitted by the user.</p>
   <dl title="interface PushService : EventTarget" class="idl">
    <dt>readonly attribute DOMString appToken</dt> 
     <dd>A unique token generated by the application that identifies the instance or set of instances that are intended to receive Push messages and that was passed as a parameter to <code>requestRemotePermission()</code>.</dd>
    <dt>readonly attribute DOMString publicKey</dt> 
-    <dd>The public key that the Push server can use to verify the signature of the push message and that was passed as a parameter to <code>requestRemotePermission()</code>.</dd>
+    <dd>The public key that the <a class="internalDFN" href="#dfn-push-server">push server</a> can use to verify the signature of the push message and that was passed as a parameter to <code>requestRemotePermission()</code>.</dd>
    <dt>readonly attribute DOMString algorithm</dt> 
-    <dd>The signature algorithm used by the webapp server to sign push messages and that was passed as a parameter to <code>requestRemotePermission()</code>.</dd>
+    <dd>The signature algorithm used by the application server to sign push messages and that was passed as a parameter to <code>requestRemotePermission()</code>.</dd>
    <dt>readonly attribute DOMString serviceUrl</dt>
-    <dd>A URL where the webapp server can send messages to this webapp.</dd>
+    <dd>A URL where the application server can send messages to this <a class="internalDFN" href="#dfn-webapp">webapp</a>.</dd>
    <dt>readonly attribute DOMString[] serverProtocols</dt>
-    <dd>A list of server protocol versions that the server supports in order of preference (e.g. protocols more likely to be deprecated first would go later in the array). The webapp server should use the first version in this array that it supports. </dd>
+    <dd>An array of push service protocols which are supported by the <a class="internalDFN" href="#dom-push-server">push server</a> via the <a class="internalDFN" href="#dom-pushservice-serviceurl">serviceUrl</a>.</dd>     
    <dt>readonly attribute DOMError error</dt>
     <dd>An error that occured in processing the request, or during operation of the Push service. Errors are as defined in [[!DOM4]].</dd> 
    <dt>attribute boolean wakeup</dt>
-    <dd>An indication that the webapp requests to be invoked if possible, when a Push message is available for delivery and the webapp is not active in a browser window.</dd> 
+    <dd>An indication that the <a class="internalDFN" href="#dfn-webapp">webapp</a> requests to be invoked if possible, when a Push message is available for delivery and the <a class="internalDFN" href="#dfn-webapp">webapp</a> is not active in a browser window.</dd> 
    <dt>[TreatNonCallableAsNull] attribute Function? onsuccess</dt>
     <dd>Code to be executed when a successful result is returned from <code>requestRemotePermission()</code> or <code>checkRemotePermission()</code>.</dd> 
    <dt>[TreatNonCallableAsNull] attribute Function? onerror</dt>
@@ -139,35 +195,36 @@
   
   <p>The <dfn id="dom-pushservice-algorithm" title="dom-PushService-algorithm"><code>algorithm</code></dfn> attribute <em title="must" class="rfc2119">must</em> return the signature algorithm that was passed as a parameter to <code>requestRemotePermission()</code>.</p>
   
-  <p>The <dfn id="dom-pushservice-serviceurl" title="dom-PushService-serviceUrl"><code>serviceUrl</code></dfn> attribute <em title="must" class="rfc2119">must</em> return the <span>absolute URL</span> where the webapp server can send Push service messages to this webapp.</p>
+  <p>The <dfn id="dom-pushservice-serviceurl" title="dom-PushService-serviceUrl"><code>serviceUrl</code></dfn> attribute <em title="must" class="rfc2119">must</em> return the <span>absolute URL</span> where the application server can send Push service messages to this <a class="internalDFN" href="#dfn-webapp">webapp</a>.</p>
   
-  <p>The <dfn id="dom-pushservice-serverprotocols" title="dom-PushService-serverProtocols"><code>serverProtocols</code></dfn> attribute <em title="must" class="rfc2119">must</em> return the set of server protocol versions that the Push server supports in order of preference
-  for its use by the webapp server to send Push messages to the Push server.</p>
+  <p>The <dfn id="dom-pushservice-serverprotocols" title="dom-PushService-serverProtocols"><code>serverProtocols</code></dfn> attribute <em title="must" class="rfc2119">must</em> return an array of push service protocols which are supported by the <a class="internalDFN" href="#dom-push-server">push server</a> via the <a class="internalDFN" href="#dom-pushservice-serviceurl">serviceUrl</a>. The list should be ordered by preference (e.g. protocols more likely to be deprecated first should go later in the array). Application servers are expected to use the first supported protocol in this list.
   
+  <div class="note">How push service protocol versions are defined and administered is TBD.</div>  
+        
   <p>The <dfn id="dom-pushservice-error" title="dom-PushService-error"><code>error</code></dfn> attribute <em title="must" class="rfc2119">must</em> return any error that occured in processing the request, or during operation of the Push service.</p>
 
      
-  <p>If set to <code>true</code>, the <dfn id="dom-pushservice-wakeup" title="dom-PushService-wakeup"><code>wakeup</code></dfn>, when a Push message is received and the webapp is not active in a browser window, the browser <em title="must" class="rfc2119">must</em> invoke the webapp if possible, and deliver the Push message to it. Examples of cases in which webapps should be invokable include:
+  <p>If set to <code>true</code>, the <dfn id="dom-pushservice-wakeup" title="dom-PushService-wakeup"><code>wakeup</code></dfn>, when a Push message is received and the <a class="internalDFN" href="#dfn-webapp">webapp</a> is not active in a browser window, the browser <em title="must" class="rfc2119">must</em> invoke the <a class="internalDFN" href="#dfn-webapp">webapp</a> if possible, and deliver the Push message to it. Examples of cases in which <a class="internalDFN" href="#dfn-webapp">webapps</a> should be invokable include:
    <ul>
-    <li>The webapp has been installed from a widget package or other installation method.
-    <li>The webapp is persistently cached via the [[!HTML5]] Application Cache.
-    <li>The webapp exists in the browser cache.
-    <li>The browser is able to retrieve the webapp at the absolute URL from where it was accessed when the <a href="#pushservice">PushService</a></code> object was created. 
+    <li>The <a class="internalDFN" href="#dfn-webapp">webapp</a> has been installed from a widget package or other installation method.
+    <li>The <a class="internalDFN" href="#dfn-webapp">webapp</a> is persistently cached via the [[!HTML5]] Application Cache.
+    <li>The <a class="internalDFN" href="#dfn-webapp">webapp</a> exists in the browser cache.
+    <li>The browser is able to retrieve the <a class="internalDFN" href="#dfn-webapp">webapp</a> at the absolute URL from where it was accessed when the <a href="#pushservice">PushService</a></code> object was created. 
    </ul>
   </p>
      
   <p>The <dfn id="dom-pushservice-readystate" title="dom-PushService-readyState"><code>readyState</code></dfn> attribute represents the state of the Push service. It can have the following values:
    <dl>
     <dt><dfn id="dom-pushservice-connecting" title="dom-PushService-CONNECTING"><code>CONNECTING</code></dfn> (numeric value 0)</dt>
-     <dd>The Push service is not yet activated, or was closed and the <a>user agent</a> is reconnecting.</dd> 
+     <dd>The Push service is not yet activated, or was closed and the <a class="internalDFN" href="#dfn-user-agent">user agent</a> is reconnecting.</dd> 
     <dt><dfn id="dom-pushservice-open" title="dom-PushService-OPEN"><code>OPEN</code></dfn> (numeric value 1)</dt>
-     <dd>The Push service is active and the <a>user agent</a> is dispatching Push messages as it receives them.</dd> 
+     <dd>The Push service is active and the <a class="internalDFN" href="#dfn-user-agent">user agent</a> is dispatching Push messages as it receives them.</dd> 
     <dt><dfn id="dom-pushservice-closed" title="dom-PushService-CLOSED"><code>CLOSED</code></dfn> (numeric value 2)</dt>
     <dd>The Push service is not open. Either there was a fatal error or the <code title="dom-PushService-close"><a href="#dom-pushservice-close">close()</a></code> method was invoked.</dd> 
    </dl>
   </p>
 
-  <p>When the <code><a href="#pushservice">PushService</a></code> object is created its <code title="dom-PushService-readyState"><a href="#dom-pushservice-readystate">readyState</a></code> <em title="must" class="rfc2119">must</em> be set to <code title="dom-PushService-OPEN"><a href="#dom-pushservice-open">OPEN</a></code> (1) if Push messages may be immediately received by the webapp (i.e. no further processing is required to activate the Push service). Otherwise <code title="dom-PushService-readyState"><a href="#dom-pushservice-readystate">readyState</a></code> <em title="must" class="rfc2119">must</em> be set to <code title="dom-PushService-CONNECTING"><a href="#dom-pushservice-connecting">CONNECTING</a></code> (0), and transition to <code title="dom-PushService-OPEN"><a href="#dom-pushservice-open">OPEN</a></code> (1) only when Push messages may be received by the webapp.</p>
+  <p>When the <code><a href="#pushservice">PushService</a></code> object is created its <code title="dom-PushService-readyState"><a href="#dom-pushservice-readystate">readyState</a></code> <em title="must" class="rfc2119">must</em> be set to <code title="dom-PushService-OPEN"><a href="#dom-pushservice-open">OPEN</a></code> (1) if Push messages may be immediately received by the <a class="internalDFN" href="#dfn-webapp">webapp</a> (i.e. no further processing is required to activate the Push service). Otherwise <code title="dom-PushService-readyState"><a href="#dom-pushservice-readystate">readyState</a></code> <em title="must" class="rfc2119">must</em> be set to <code title="dom-PushService-CONNECTING"><a href="#dom-pushservice-connecting">CONNECTING</a></code> (0), and transition to <code title="dom-PushService-OPEN"><a href="#dom-pushservice-open">OPEN</a></code> (1) only when Push messages may be received by the <a class="internalDFN" href="#dfn-webapp">webapp</a>.</p>
     
   <p>The <dfn id="dom-pushservice-close" title="dom-PushService-close"><code>close()</code></dfn> method <em title="must" class="rfc2119">must</em> abort any further operation of a Push service related to the <code><a href="#pushservice">PushService</a></code> object, and <em title="must" class="rfc2119">must</em> set the <code title="dom-PushService-readyState"><a href="#dom-pushservice-readystate">readyState</a></code> attribute to <code title="dom-PushService-CLOSED"><a href="#dom-pushservice-closed">CLOSED</a></code>.</p> 
 
@@ -176,17 +233,18 @@
   <table><thead><tr><th><span title="event handlers">Event handler</span> <th><span>Event handler event type</span>
    <tbody>
     <tr><td><dfn id="handler-pushservice-onsuccess" title="handler-PushService-onsuccess"><code>onsuccess</code></dfn> <td><code title="event-success">success</code>
-    <tr><td><dfn id="handler-pushservice-onopen" title="handler-PushService-onopen"><code>onopen</code></dfn> <td> <code title="event-open">open</code>
     <tr><td><dfn id="handler-pushservice-onmessage" title="handler-PushService-onmessage"><code>onmessage</code></dfn> <td> <code title="event-message">message</code>
     <tr><td><dfn id="handler-pushservice-onerror" title="handler-PushService-onerror"><code>onerror</code></dfn> <td> <code title="event-error">error</code>
   </table>
 
-  <p>When a Push message is received, the <a>user agent</a> <em title="must" class="rfc2119">must</em> deliver the message data via the <code>onmessage</code> handler, if possible. If delivery is not possible, the <a>user agent</a> may discard the message, or may queue it for later delivery.</p>
+  <p>When a Push message is received, the <a class="internalDFN" href="#dfn-user-agent">user agent</a> <em title="must" class="rfc2119">must</em> deliver the message data via the <code>onmessage</code> handler, if possible. If delivery is not possible, the <a class="internalDFN" href="#dfn-user-agent">user agent</a> may discard the message, or may queue it for later delivery.</p>
   
  </section>
  
- <section id="servicebindings"><h1>Specific Service Bindings</h1>
-  <p>To be provided.</p>
+ <section id="servicebindings"><h1>Specific Service Bindings</h1> 
+  <p><a class="internalDFN" href="#dfn-user-agent">User agents</a> that support Push API binding to the [[!OMA-Push]] protocol <em title="must" class="rfc2119">must</em> deliver related [[!OMA-Push]] messages as a <code title="event-message">message</code> event with the interface <code>MessageEvent</code> on the <code><a href="#pushservice">PushService</a></code> object, with the event's <code title="dom-MessageEvent-data">data</code> attribute set to the textual representation of the body of the received [[!OMA-Push]] message.</p>
+  <p><a class="internalDFN" href="#dfn-user-agent">User agents</a> that support Push API binding to the [[!GSM-SMS]] protocol <em title="must" class="rfc2119">must</em> deliver related [[!GSM-SMS]] messages as a <code title="event-message">message</code> event with the interface <code>MessageEvent</code> on the <code><a href="#pushservice">PushService</a></code> object, with the event's <code title="dom-MessageEvent-data">data</code> attribute set to the textual representation of the body of the received [[!GSM-SMS]] message.</p>
+  <p><a class="internalDFN" href="#dfn-user-agent">User agents</a> that support Push API binding to the [[!SIP-MESSAGE]] protocol <em title="must" class="rfc2119">must</em> deliver related [[!SIP-MESSAGE]] messages as a <code title="event-message">message</code> event with the interface <code>MessageEvent</code> on the <code><a href="#pushservice">PushService</a></code> object, with the event's <code title="dom-MessageEvent-data">data</code> attribute set to the textual representation of the body of the received [[!SIP-MESSAGE]] message.</p>
  </section>
  
  <section class="informative"><h2>Examples</h2>
