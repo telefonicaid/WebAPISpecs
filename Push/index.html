@@ -59,7 +59,7 @@
  mypush.onsuccess = function () {
    var activate = "http://example.com/push/activate?token="+token+
      "&serviceUrl="+encodeURIComponent(mypush.serviceUrl)+
-     "&serverProtocols="+serverProtocols;
+     "&serverProtocols="+mypush.serverProtocols;
    asyncXHR(activate); // send activation request to application server
 	 
    mypush.wakeup = true;
@@ -91,6 +91,7 @@
        |                    |<----push message-----|                     |
        |                    | per service protocol |                     |
        |                    |                      |                     |
+       |                    |             (match to user agent)          |
        |            (match to webapp)              |                     |
        |                    |                      |                     |
        |<---message event---|                      |                     |
