@@ -16,7 +16,8 @@
           crEnd:                "",
           editors:  [
               { name: "José M. Cantera", company: "Telefónica", companyURL: "http://www.tid.es/" },
-              { name: "Eduardo Fullea", company: "Telefónica", companyURL: "http://www.tid.es/" }
+              { name: "Eduardo Fullea", company: "Telefónica", companyURL: "http://www.tid.es/" },
+              { name: "Zoltan Kis", company: "Intel", companyURL: "http://www.intel.com/" }
          ],
           inlineCSS:    true,
           noIDLIn:      true,
@@ -215,6 +216,7 @@
                   <code>isRecorded</code> parameter is <code>true</code>.
                   <li>Set the <code>state</code> of <var>telCall</var> to <a href="#call-status-dialing"><code>dialing</code></a>.
                   <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>statechange</code> at the <var>telCall</var> object.
+                  <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>dialing</code> at the <var>telCall</var> object.
                   <li>and finally return to the caller and <a>queue a task</a> <i>TCallControl</i> to monitor call flow progress.
                 </ol>
                 <li>If during further steps for call connection there is an error go to <a href="#error-steps">error steps</a>
@@ -224,8 +226,10 @@
       <p><i>TCallControl</i> MUST listen to any event (originated by API client operations or by the telephony system itself)
       that results in a disconnection not caused by the callee and in that case the following steps MUST be run:
       <ol id="steps-disconnect">
-        <li>Set the <code>state</code> of <var>telCall</var> to <a href='#call-status-disconnected'><code>disconnected</code></a>.</li>
-        <li>Remove the corresponding <a>TelephonyCall</a> object from the <code>calls</code> array at <code>Telephony</code>.</li>
+        <li>Set the <code>state</code> of <var>telCall</var> to <a href='#call-status-disconnected'><code>disconnected</code></a>.
+        <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>statechange</code> at the <var>telCall</var> object.
+        <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>disconnected</code> at the <var>telCall</var> object.
+        <li>Remove the <var>telCall</var> object from the <code>calls</code> array at <code>Telephony</code>.
       </ol>
 
       <p>Upon a new incoming call, the <a>user agent</a> MUST:
@@ -233,8 +237,9 @@
           <li>Let <var title="">incomingCall</var> be a new instance of <code>TelephonyCall</code>.
           <li>Set the <code>state</code> of <var>incomingCall</var> to <a href="#call-status-incoming"><code>incoming</code></a>
           <li>Add <var title="">incomingCall</var> to the <code>calls</code> array
-          <li><a>queue a task</a> to <a>fire an event</a> named <code><a>incoming</a></code> at the <a>Telephony</a> object and
-          <li><a>queue a task</a> <i>TCallControl</i> to monitor call flow progress.
+          <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>statechange</code> at the <var>incomingCall</var> object.
+          <li><a>Queue a task</a> to <a>fire an event</a> named <code><a>incoming</a></code> at the <var>incomingCall</var> object and
+          <li><a>Queue a task</a> <i>TCallControl</i> to monitor call flow progress.
         </ol>
 
         <p class="issue">
