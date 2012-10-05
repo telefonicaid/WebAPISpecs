@@ -48,6 +48,35 @@
    <li>multiple instances of the same <a class="internalDFN" href="#dfn-webapp">webapp</a> are active in different browsers, and Push messages are delivered to a set of instances of the <a class="internalDFN" href="#dfn-webapp">webapp</a>, e.g. when a mail <a class="internalDFN" href="#dfn-webapp">webapp</a> is active in two browsers using the samemail account</li>
    <li>multiple instances of the same <a class="internalDFN" href="#dfn-webapp">webapp</a> are active in different browsers, and Push messages are delivered to all instances of the <a class="internalDFN" href="#dfn-webapp">webapp</a>, e.g. when a message is to be broadcasted to all users of the <a class="internalDFN" href="#dfn-webapp">webapp</a>
   </ul></p>
+ </section>
+ 
+ <section id="conformance">
+  <p>This specification defines conformance criteria that apply to a single product: the <dfn><a class="internalDFN" href="#dfn-user-agent">user agent</a></dfn> that implements the interfaces that it contains.</p>
+  <p>Implementations that use ECMAScript to implement the APIs defined in this specification <em title="must" class="rfc2119">must</em> implement them in a manner consistent with the ECMAScript Bindings defined in the Web IDL specification [[!WEBIDL]], as this specification uses that specification and terminology.</p>
+ </section>
+ 
+ <section><h2>Terminology</h2>
+  <p>The <code><a href="http://dev.w3.org/html5/spec/webappapis.html#function"> Function</a></code> interface represents a function in the scripting language being used as defined in [[!HTML5]].</p>
+  <p>The concepts <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#queue-a-task"> queue a task</a></dfn> and
+        <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#fire-a-simple-event"> fires a simple event</a></dfn> are defined in [[!HTML5]].</p>
+  <p>The terms <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#event-handlers"> event handlers</a></dfn> and
+        <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#event-handler-event-type"> event handler event types</a></dfn> are defined in [[!HTML5]].</p>
+  <p>The term <dfn id="dfn-intent-provider">Web Intent Push Service provider</dfn> refers to a service implemented as described in [[!WEBINTENTS]], and offering Push API binding to event delivery via the service.</p> 
+  <p>The term <dfn id="dfn-push-server">push server</dfn> refers to a system via which a push service is provided.</p> 
+  <p>The term <dfn id="dfn-webapp">webapp</dfn> refers to Web applications, i.e. applications implemented using Web technologies, and executing within the context of a Web <a class="internalDFN" href="#dfn-user-agent">user agent</a>, e.g. a Web browser or other Web runtime environment.</p>
+ </section>
+
+ <section><h2>Security and privacy considerations</h2>
+  <p><a class="internalDFN" href="#dfn-user-agent">User agents</a> <em title="must" class="rfc2119">must not</em> provide Push API access to Webapps without the express permission of the user. <a class="internalDFN" href="#dfn-user-agent">User agents</a> <em title="must" class="rfc2119">must</em> acquire consent for permission through a user interface for each call to the <code>requestRemotePermission()</code> method, unless a prearranged trust relationship applies.</p>
+  <p><a class="internalDFN" href="#dfn-user-agent">user agent</a>s <em title="may" class="rfc2119">may</em> support prearranged trust relationships that do not require such per-request user interfaces.</p>
+  <p>Permissions that are preserved beyond the current browsing session <em title="must" class="rfc2119">must</em> be revocable.</p>
+ </section> 
+
+ <section class='informative' id="pushframework"><h2>Push Framework</h2>
+  <p>There are different deployment alternatives to allow application servers to deliver Push messages to <a class="internalDFN" href="#dfn-webapp">webapps</a>. In a typical deployment application servers send push messages to a <a class="internalDFN" href="#dfn-push-server">push server</a>, e.g. by a RESTful interface, which in turn delivers the message to the <a class="internalDFN" href="#dfn-user-agent">user agent</a> providing the execution context for the <a class="internalDFN" href="#dfn-webapp">webapp</a>. The <a class="internalDFN" href="#dfn-user-agent">user agent</a> then delivers the Push message to the corresponding <a class="internalDFN" href="#dfn-webapp">webapp</a> to which the Push message was addressed.</p>
+  <p>This API allows <a class="internalDFN" href="#dfn-webapp">webapps</a> to ask the user for permission to receive Push messages and to provide the <a class="internalDFN" href="#dfn-user-agent">user agent</a> with the necessary information to activate the Push service. For instance, the <a class="internalDFN" href="#dfn-webapp">webapp</a> provides a unique application token that is used by the application server when sending a message to the <a class="internalDFN" href="#dfn-push-server">push server</a> to address an specific instance (or set thereof) of the application. In case several instances of a <a class="internalDFN" href="#dfn-webapp">webapp</a> register the same application token, e.g. in different <a class="internalDFN" href="#dfn-user-agent">user agents</a>, then the <a class="internalDFN" href="#dfn-push-server">push server</a> deliver Push messages addressed to that application token to all of those instances (e.g. when a mail <a class="internalDFN" href="#dfn-webapp">webapp</a> is active in two browsers using the same mail account)</p>
+  <p>Also the <a class="internalDFN" href="#dfn-webapp">webapp</a> may provide additional information in order to allow the <a class="internalDFN" href="#dfn-push-server">push server</a> to verify that Push messages come from the right application server. Namely it can provide a public key that the <a class="internalDFN" href="#dfn-push-server">push server</a> can use to verify that the Push message comes from the right application server, which has signed the message with the associated private key</p>
+  
   
   <div class="example">
 	 <pre class="example highlight prettyprint">
@@ -88,10 +117,11 @@
        |                    |                      |<----push message----|
        |                    |                      |   per service API   |
        |                    |                      |                     |
+       |                    |             (match to user agent)          |
+       |                    |                      |                     |
        |                    |<----push message-----|                     |
        |                    | per service protocol |                     |
        |                    |                      |                     |
-       |                    |             (match to user agent)          |
        |            (match to webapp)              |                     |
        |                    |                      |                     |
        |<---message event---|                      |                     |
@@ -99,35 +129,7 @@
 */
    </pre>
   </div>
-  
- </section>
- 
- <section id="conformance">
-  <p>This specification defines conformance criteria that apply to a single product: the <dfn><a class="internalDFN" href="#dfn-user-agent">user agent</a></dfn> that implements the interfaces that it contains.</p>
-  <p>Implementations that use ECMAScript to implement the APIs defined in this specification <em title="must" class="rfc2119">must</em> implement them in a manner consistent with the ECMAScript Bindings defined in the Web IDL specification [[!WEBIDL]], as this specification uses that specification and terminology.</p>
- </section>
- 
- <section><h2>Terminology</h2>
-  <p>The <code><a href="http://dev.w3.org/html5/spec/webappapis.html#function"> Function</a></code> interface represents a function in the scripting language being used as defined in [[!HTML5]].</p>
-  <p>The concepts <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#queue-a-task"> queue a task</a></dfn> and
-        <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#fire-a-simple-event"> fires a simple event</a></dfn> are defined in [[!HTML5]].</p>
-  <p>The terms <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#event-handlers"> event handlers</a></dfn> and
-        <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#event-handler-event-type"> event handler event types</a></dfn> are defined in [[!HTML5]].</p>
-  <p>The term <dfn id="dfn-intent-provider">Web Intent Push Service provider</dfn> refers to a service implemented as described in [[!WEBINTENTS]], and offering Push API binding to event delivery via the service.</p> 
-  <p>The term <dfn id="dfn-push-server">push server</dfn> refers to a system via which a push service is provided.</p> 
-  <p>The term <dfn id="dfn-webapp">webapp</dfn> refers to Web applications, i.e. applications implemented using Web technologies, and executing within the context of a Web <a class="internalDFN" href="#dfn-user-agent">user agent</a>, e.g. a Web browser or other Web runtime environment.</p>
- </section>
-
- <section><h2>Security and privacy considerations</h2>
-  <p><a class="internalDFN" href="#dfn-user-agent">User agents</a> <em title="must" class="rfc2119">must not</em> provide Push API access to Webapps without the express permission of the user. <a class="internalDFN" href="#dfn-user-agent">User agents</a> <em title="must" class="rfc2119">must</em> acquire consent for permission through a user interface for each call to the <code>requestRemotePermission()</code> method, unless a prearranged trust relationship applies.</p>
-  <p><a class="internalDFN" href="#dfn-user-agent">user agent</a>s <em title="may" class="rfc2119">may</em> support prearranged trust relationships that do not require such per-request user interfaces.</p>
-  <p>Permissions that are preserved beyond the current browsing session <em title="must" class="rfc2119">must</em> be revocable.</p>
- </section> 
-
- <section class='informative' id="pushframework"><h2>Push Framework</h2>
-  <p>There are different deployment alternatives to allow application servers to deliver Push messages to <a class="internalDFN" href="#dfn-webapp">webapps</a>. In a typical deployment application servers send push messages to a <a class="internalDFN" href="#dfn-push-server">push server</a>, e.g. by a RESTful interface, which in turn delivers the message to the <a class="internalDFN" href="#dfn-user-agent">user agent</a> providing the execution context for the <a class="internalDFN" href="#dfn-webapp">webapp</a>. The <a class="internalDFN" href="#dfn-user-agent">user agent</a> then delivers the Push message to the corresponding <a class="internalDFN" href="#dfn-webapp">webapp</a> to which the Push message was addressed.</p>
-  <p>This API allows <a class="internalDFN" href="#dfn-webapp">webapps</a> to ask the user for permission to receive Push messages and to provide the <a class="internalDFN" href="#dfn-user-agent">user agent</a> with the necessary information to activate the Push service. For instance, the <a class="internalDFN" href="#dfn-webapp">webapp</a> provides a unique application token that is used by the application server when sending a message to the <a class="internalDFN" href="#dfn-push-server">push server</a> to address an specific instance (or set thereof) of the application. In case several instances of a <a class="internalDFN" href="#dfn-webapp">webapp</a> register the same application token, e.g. in different <a class="internalDFN" href="#dfn-user-agent">user agents</a>, then the <a class="internalDFN" href="#dfn-push-server">push server</a> deliver Push messages addressed to that application token to all of those instances (e.g. when a mail <a class="internalDFN" href="#dfn-webapp">webapp</a> is active in two browsers using the same mail account)</p>
-  <p>Also the <a class="internalDFN" href="#dfn-webapp">webapp</a> may provide additional information in order to allow the <a class="internalDFN" href="#dfn-push-server">push server</a> to verify that Push messages come from the right application server. Namely it can provide a public key that the <a class="internalDFN" href="#dfn-push-server">push server</a> can use to verify that the Push message comes from the right application server, which has signed the message with the associated private key</p>
+    
  </section>
  
  <section id="navigatorpush"><h2><a>NavigatorPush</a> Interface</h2>
