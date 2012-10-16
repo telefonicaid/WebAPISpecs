@@ -6,31 +6,78 @@
     <script src='http://www.w3.org/Tools/respec/respec-w3c-common' class='remove'></script>
     <script class="remove">
       var respecConfig = {
+          // specification status (e.g. WD, LCWD, NOTE, etc.). If in doubt use ED.
           specStatus:           "ED",
+
+          // the specification's short name, as in http://www.w3.org/TR/short-name/
           shortName:            "push-api",
-          publishDate:          "",
-          previousPublishDate:  "",
-          previousMaturity:     "",
+
+          // if your specification has a subtitle that goes below the main
+          // formal title, define it here
+          // subtitle   :  "an excellent document",
+
+          // if you wish the publication date to be other than today, set this
+          publishDate:  "2012-10-18",
+
+          // if the specification's copyright date is a range of years, specify
+          // the start date here:
+          // copyrightStart: "2005"
+
+          // if there is a previously published draft, uncomment this and set its YYYY-MM-DD date
+          // and its maturity status
+          // previousPublishDate:  "1977-03-15",
+          // previousMaturity:  "WD",
+
+          // if there a publicly available Editor's Draft, this is the link
           edDraftURI:           "http://dvcs.w3.org/hg/webapps/raw-file/tip/push/Overview.html",
-          // lcEnd:                "",
-          crEnd:                "",
+
+          // if this is a LCWD, uncomment and set the end of its review period
+          // lcEnd: "2009-08-05",
+
+          // if you want to have extra CSS, append them to this list
+          // it is recommended that the respec.css stylesheet be kept
+          extraCSS:             ["http://www.w3.org/StyleSheets/TR/W3C-TR.css", "http://dev.w3.org/2009/dap/ReSpec.js/css/respec.css"],
+
+          inlineCSS:    true,
+          noIDLIn:      true,
+          
+          // editors, add as many as you like
+          // only "name" is required
           editors:  [
               { name: "Bryan Sullivan", company: "AT&T", companyURL: "http://att.com/" },
               { name: "Eduardo Fullea", company: "Telefonica", companyURL: "http://www.telefonica.com/" }              
           ],
-          inlineCSS:    true,
-          noIDLIn:      true,
-          extraCSS:     ["http://dev.w3.org/2009/dap/ReSpec.js/css/respec.css"],
-          wg:           "Webapps Working Group",
+
+          // authors, add as many as you like.
+          // This is optional, uncomment if you have authors as well as editors.
+          // only "name" is required. Same format as editors.
+
+          //authors:  [
+          //    { name: "Your Name", url: "http://example.org/",
+          //      company: "Your Company", companyURL: "http://example.com/" },
+          //],
+
+          // name of the WG
+          wg:           "Web Applications Working Group",
+
+          // URI of the public WG page
           wgURI:        "http://www.w3.org/2008/webapps/",
+
+          // name (with the @w3c.org) of the public mailing to which comments are due
           wgPublicList: "public-webapps",
-          wgPatentURI:  "http://www.w3.org/2004/01/pp-impl/43696/status",
+
+          // URI of the patent status for this WG, for Rec-track documents
+          // !!!! IMPORTANT !!!!
+          // This is important for Rec-track documents, do not copy a patent URI from a random
+          // document unless you know what you're doing. If in doubt ask your friendly neighbourhood
+          // Team Contact.
+          wgPatentURI:  "http://www.w3.org/2004/01/pp-impl/42538/status"
       };
     </script>
   </head>
   
 <body>
- <section id='abstract'>
+  <section id='abstract'>
   <p>This specification defines a “Push API” that provides <a class="internalDFN" href="#dfn-webapp">webapps</a> with scripted access to server-sent application data, for simplicity referred to here as "Push messages" as delivered by "Push services". Push services are a way for application servers to send messages to <a class="internalDFN" href="#dfn-webapp">webapps</a>, whether or not the <a class="internalDFN" href="#dfn-webapp">webapp</a> is active in a browser window.</p>
   <p>Push messages may be delivered via various methods, either via standardized protocols (e.g. Server-Sent Events [[!SSE]], the GSM Short Message Service [[!GSM-SMS]], SIP MESSAGE [[!RFC3428]], or OMA Push [[!OMA-PUSH]]), or via browser-specific methods. The specific method to be used by a <a class="internalDFN" href="#dfn-webapp">webapp</a> is either selected by the user through selecting a <a class="internalDFN" href="#dfn-intent-provider">Web Intent Push Service provider</a>, or by the browser. The Push API is defined to promote compatibility with any underlying delivery method.</p>
  </section>
@@ -39,7 +86,8 @@
  </section> 
 
  <section class='informative' id="introduction"><h2>Introduction</h2>
-  <p>As defined here, Push services support delivery of application server messages in the following contexts and related use cases:<ul>
+  <p>As defined here, Push services support delivery of application server messages in the following contexts and related use cases:</p>
+  <ul>
    <li>the user is actively involved in the use of a <a class="internalDFN" href="#dfn-webapp">webapp</a>: this relates to any normal use case in which a <a class="internalDFN" href="#dfn-webapp">webapp</a> user may benefit from Push messages while the user is actively using the <a class="internalDFN" href="#dfn-webapp">webapp</a>
    <li>the user is not actively involved in the use of a <a class="internalDFN" href="#dfn-webapp">webapp</a>, but the <a class="internalDFN" href="#dfn-webapp">webapp</a> is active in a window of the browser or executing as a web worker: this relates to use cases such as social networking, messaging, web feed readers, etc in which the user may not be actively using a <a class="internalDFN" href="#dfn-webapp">webapp</a> but still benefits from Push messages being sent to (or via) the <a class="internalDFN" href="#dfn-webapp">webapp</a>, to keep the user up-to-date
    <li>the <a class="internalDFN" href="#dfn-webapp">webapp</a> is not currently active in a browser window: this relates to use cases in which the user may close the <a class="internalDFN" href="#dfn-webapp">webapp</a>, but still benefits from the <a class="internalDFN" href="#dfn-webapp">webapp</a> being able to be restarted when a Push message is received, e.g. the WebRTC use case in which an incoming call can invoke the WebRTC <a class="internalDFN" href="#dfn-webapp">webapp</a>  
@@ -47,7 +95,7 @@
    <li>multiple instances of the same <a class="internalDFN" href="#dfn-webapp">webapp</a> are active in the browser, and Push messages specific to each instance of the <a class="internalDFN" href="#dfn-webapp">webapp</a> are delivered only to the specific instance, e.g. when a mail <a class="internalDFN" href="#dfn-webapp">webapp</a> is active in two windows using different mail accounts
    <li>multiple instances of the same <a class="internalDFN" href="#dfn-webapp">webapp</a> are active in different browsers, and Push messages are delivered to a set of instances of the <a class="internalDFN" href="#dfn-webapp">webapp</a>, e.g. when a mail <a class="internalDFN" href="#dfn-webapp">webapp</a> is active in two browsers using the samemail account</li>
    <li>multiple instances of the same <a class="internalDFN" href="#dfn-webapp">webapp</a> are active in different browsers, and Push messages are delivered to all instances of the <a class="internalDFN" href="#dfn-webapp">webapp</a>, e.g. when a message is to be broadcasted to all users of the <a class="internalDFN" href="#dfn-webapp">webapp</a>
-  </ul></p>
+  </ul>
  </section>
  
  <section id="conformance">
@@ -56,7 +104,7 @@
  </section>
  
  <section><h2>Terminology</h2>
-  <p>The <code><a href="http://dev.w3.org/html5/spec/webappapis.html#function"> Function</a></code> interface represents a function in the scripting language being used as defined in [[!HTML5]].</p>
+  <p>The <code>Function</a></code> interface represents a function in the scripting language being used as defined in [[!HTML5]].</p>
   <p>The concepts <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#queue-a-task"> queue a task</a></dfn> and
         <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#fire-a-simple-event"> fires a simple event</a></dfn> are defined in [[!HTML5]].</p>
   <p>The terms <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#event-handlers"> event handlers</a></dfn> and
@@ -91,8 +139,8 @@
    };
  mypush.onsuccess = function () {
    var activate = "http://example.com/push/activate?token="+token+
-     "&serviceUrl="+encodeURIComponent(mypush.serviceUrl)+
-     "&serverProtocols="+mypush.serverProtocols;
+     "&amp;serviceUrl="+encodeURIComponent(mypush.serviceUrl)+
+     "&amp;serverProtocols="+mypush.serverProtocols;
    asyncXHR(activate); // send activation request to application server
 	 
    mypush.wakeup = true;
@@ -112,23 +160,23 @@
        |                    |                      |                     |
        |              (user accepts)               |                     |
        |                    |                      |                     |
-       |                    |<-setup push service->|                     |
+       |                    |&lt;-setup push service->|                     |
        |                    |                      |                     |
-       |<---success event---|                      |                     |
+       |&lt;---success event---|                      |                     |
        |                    |                      |                     |
-       |<--activate service with PushService attributes----------------->|
+       |&lt;--activate service with PushService attributes----------------->|
        |                    |                      |                     |
-       |                    |                      |<----push message----|
+       |                    |                      |&lt;----push message----|
        |                    |                      |   per service API   |
        |                    |                      |                     |
        |                    |             (match to user agent)          |
        |                    |                      |                     |
-       |                    |<----push message-----|                     |
+       |                    |&lt;----push message-----|                     |
        |                    | per service protocol |                     |
        |                    |                      |                     |
        |            (match to webapp)              |                     |
        |                    |                      |                     |
-       |<---message event---|                      |                     |
+       |&lt;---message event---|                      |                     |
        |                    |                      |                     |
 */
    </pre>
@@ -173,16 +221,16 @@
    <dt>readonly attribute DOMString serviceUrl</dt>
     <dd>A URL where the application server can send messages to this <a class="internalDFN" href="#dfn-webapp">webapp</a>.</dd>
    <dt>readonly attribute DOMString[] serverProtocols</dt>
-    <dd>An array of push service protocols which are supported by the <a class="internalDFN" href="#dom-push-server">push server</a> via the <a class="internalDFN" href="#dom-pushservice-serviceurl">serviceUrl</a>.</dd>     
+    <dd>An array of push service protocols which are supported by the <a class="internalDFN" href="#dfn-push-server">push server</a> via the <a class="internalDFN" href="#dom-pushservice-serviceurl">serviceUrl</a>.</dd>     
    <dt>readonly attribute DOMError error</dt>
     <dd>An error that occured in processing the request, or during operation of the Push service. Errors are as defined in [[!DOM4]].</dd> 
    <dt>attribute boolean wakeup</dt>
     <dd>An indication that the <a class="internalDFN" href="#dfn-webapp">webapp</a> requests to be invoked if possible, when a Push message is available for delivery and the <a class="internalDFN" href="#dfn-webapp">webapp</a> is not active in a browser window.</dd> 
-   <dt>[TreatNonCallableAsNull] attribute Function? onsuccess</dt>
+   <dt>attribute Function? onsuccess</dt>
     <dd>Code to be executed when a successful result is returned from <code>requestRemotePermission()</code> or <code>checkRemotePermission()</code>.</dd> 
-   <dt>[TreatNonCallableAsNull] attribute Function? onerror</dt>
+   <dt>attribute Function? onerror</dt>
     <dd>Code to be executed when an error result is returned from <code>requestRemotePermission()</code> or <code>checkRemotePermission()</code>.</dd> 
-   <dt>[TreatNonCallableAsNull] attribute Function? onmessage</dt>
+   <dt>attribute Function? onmessage</dt>
     <dd>Code to be executed when a Push message has been received.</dd> 
    <dt>void close()</dt>
     <dd>Called to terminate the Push service.</dd> 
@@ -204,23 +252,22 @@
   
   <p>The <dfn id="dom-pushservice-serviceurl" title="dom-PushService-serviceUrl"><code>serviceUrl</code></dfn> attribute <em title="must" class="rfc2119">must</em> return the <span>absolute URL</span> where the application server can send Push service messages to this <a class="internalDFN" href="#dfn-webapp">webapp</a>.</p>
   
-  <p>The <dfn id="dom-pushservice-serverprotocols" title="dom-PushService-serverProtocols"><code>serverProtocols</code></dfn> attribute <em title="must" class="rfc2119">must</em> return an array of push service protocols which are supported by the <a class="internalDFN" href="#dom-push-server">push server</a> via the <a class="internalDFN" href="#dom-pushservice-serviceurl">serviceUrl</a>. The list should be ordered by preference (e.g. protocols more likely to be deprecated first should go later in the array). Application servers are expected to use the first supported protocol in this list.
+  <p>The <dfn id="dom-pushservice-serverprotocols" title="dom-PushService-serverProtocols"><code>serverProtocols</code></dfn> attribute <em title="must" class="rfc2119">must</em> return an array of push service protocols which are supported by the <a class="internalDFN" href="#dfn-push-server">push server</a> via the <a class="internalDFN" href="#dom-pushservice-serviceurl">serviceUrl</a>. The list should be ordered by preference (e.g. protocols more likely to be deprecated first should go later in the array). Application servers are expected to use the first supported protocol in this list.
   
   <div class="note">How push service protocol versions are defined and administered is TBD.</div>  
         
   <p>The <dfn id="dom-pushservice-error" title="dom-PushService-error"><code>error</code></dfn> attribute <em title="must" class="rfc2119">must</em> return any error that occured in processing the request, or during operation of the Push service.</p>
 
      
-  <p>If set to <code>true</code>, the <dfn id="dom-pushservice-wakeup" title="dom-PushService-wakeup"><code>wakeup</code></dfn>, when a Push message is received and the <a class="internalDFN" href="#dfn-webapp">webapp</a> is not active in a browser window, the browser <em title="must" class="rfc2119">must</em> invoke the <a class="internalDFN" href="#dfn-webapp">webapp</a> if possible, and deliver the Push message to it. Examples of cases in which <a class="internalDFN" href="#dfn-webapp">webapps</a> should be invokable include:
+  <p>If set to <code>true</code>, the <dfn id="dom-pushservice-wakeup" title="dom-PushService-wakeup"><code>wakeup</code></dfn>, when a Push message is received and the <a class="internalDFN" href="#dfn-webapp">webapp</a> is not active in a browser window, the browser <em title="must" class="rfc2119">must</em> invoke the <a class="internalDFN" href="#dfn-webapp">webapp</a> if possible, and deliver the Push message to it. Examples of cases in which <a class="internalDFN" href="#dfn-webapp">webapps</a> should be invokable include:</p>
    <ul>
     <li>The <a class="internalDFN" href="#dfn-webapp">webapp</a> has been installed from a widget package or other installation method.
     <li>The <a class="internalDFN" href="#dfn-webapp">webapp</a> is persistently cached via the [[!HTML5]] Application Cache.
     <li>The <a class="internalDFN" href="#dfn-webapp">webapp</a> exists in the browser cache.
-    <li>The browser is able to retrieve the <a class="internalDFN" href="#dfn-webapp">webapp</a> at the absolute URL from where it was accessed when the <a href="#pushservice">PushService</a></code> object was created. 
+    <li>The browser is able to retrieve the <a class="internalDFN" href="#dfn-webapp">webapp</a> at the absolute URL from where it was accessed when the <code><a href="#pushservice">PushService</a></code> object was created. 
    </ul>
-  </p>
      
-  <p>The <dfn id="dom-pushservice-readystate" title="dom-PushService-readyState"><code>readyState</code></dfn> attribute represents the state of the Push service. It can have the following values:
+  <p>The <dfn id="dom-pushservice-readystate" title="dom-PushService-readyState"><code>readyState</code></dfn> attribute represents the state of the Push service. It can have the following values:</p>
    <dl>
     <dt><dfn id="dom-pushservice-connecting" title="dom-PushService-CONNECTING"><code>CONNECTING</code></dfn> (numeric value 0)</dt>
      <dd>The Push service is not yet activated, or was closed and the <a class="internalDFN" href="#dfn-user-agent">user agent</a> is reconnecting.</dd> 
@@ -229,7 +276,6 @@
     <dt><dfn id="dom-pushservice-closed" title="dom-PushService-CLOSED"><code>CLOSED</code></dfn> (numeric value 2)</dt>
     <dd>The Push service is not open. Either there was a fatal error or the <code title="dom-PushService-close"><a href="#dom-pushservice-close">close()</a></code> method was invoked.</dd> 
    </dl>
-  </p>
 
   <p>When the <code><a href="#pushservice">PushService</a></code> object is created its <code title="dom-PushService-readyState"><a href="#dom-pushservice-readystate">readyState</a></code> <em title="must" class="rfc2119">must</em> be set to <code title="dom-PushService-OPEN"><a href="#dom-pushservice-open">OPEN</a></code> (1) if Push messages may be immediately received by the <a class="internalDFN" href="#dfn-webapp">webapp</a> (i.e. no further processing is required to activate the Push service). Otherwise <code title="dom-PushService-readyState"><a href="#dom-pushservice-readystate">readyState</a></code> <em title="must" class="rfc2119">must</em> be set to <code title="dom-PushService-CONNECTING"><a href="#dom-pushservice-connecting">CONNECTING</a></code> (0), and transition to <code title="dom-PushService-OPEN"><a href="#dom-pushservice-open">OPEN</a></code> (1) only when Push messages may be received by the <a class="internalDFN" href="#dfn-webapp">webapp</a>.</p>
     
