@@ -3,7 +3,7 @@
   <head>
     <title>Web Telephony API</title>
     <meta charset="UTF-8">
-    <script src='http://respec.specifiction.com/js/profiles/w3c-common.js' class='remove'></script>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common' class='remove'></script>
     <script class="remove">
       var respecConfig = {
           specStatus:           "unofficial",
@@ -144,11 +144,43 @@
         <dt>readonly attribute TelephonyCall[] calls</dt>
         <dd>Returns an array with the list of instantiated calls. The attribute MUST be initialized to an empty array.</dd>
 
-        <dt> TelephonyCall dial (in DOMString number,in optional Boolean isOwnNumberHidden,in optional Boolean
-        isRecorded)</dt>
-        <dd>Allows to initiate a new <a>TelephonyCall</a> using this telephony service to a destination
-        <code>number</code> indicating whether the own number is to be hidden to the callee and whether the call is
-        intended to be recorded. </dd>
+        <dt> TelephonyCall dial ()</dt>
+        <dd>Allows to initiate a new <a>TelephonyCall</a> using this telephony service.
+          <dl class='parameters'>
+             <dt>DOMString number</dt>
+             <dd>
+               Indicates the destination number of the call 
+             </dd>
+             <dt>DialParams params</dt>
+             <dd>
+               Indicates the parameters of the call (i.e. own number to be hidden or displayed and call to be recorded or not)
+             </dd>
+          </dl>
+        
+        </dd>
+
+        <dt>void startTone()</dt>
+        <dd>This method starts emitting a DTMF tone in the active TelephonyCall object.
+          <dl class='parameters'>
+             <dt>DOMString tone</dt>
+             <dd>
+               Indicates the DTMF tone to be emitted with values (0-9; A-D; *; #) 
+             </dd>
+          </dl>
+        </dd>
+
+        <dt>void stopTone()</dt>
+        <dd>This method allows to stop the DTMF tone being emitted in the active TelephonyCall object.</dd>
+
+        <dt>void sendTone()</dt>
+        <dd>This method emits a DTMF tone with default duration in the active TelephonyCall object.
+          <dl class='parameters'>
+             <dt>DOMString tone</dt>
+             <dd>
+               Indicates the DTMF tone to be emitted with values (0-9; A-D; *; #) 
+             </dd>
+          </dl>
+        </dd>
 
         <dt class="no-docs">
           attribute EventHandler onincoming
@@ -159,7 +191,7 @@
         </dt>
         <dd></dd>
       </dl>
-
+      
       <p>The IDL attribute <code>speakerEnabled</code> MUST
       return <code>true</code>/<code>false</code> when the speakers are respectively enabled/disabled.
 
@@ -207,13 +239,14 @@
 
           <ol>
               <li>Make a request to the telephony system to dial in the telephone number passed
-                    in the <code>number</code> parameter, and in case the <code>isOwnNumberHidden</code> is
-                    <code>true</code> with an indication that own number is to be hidden. If the request progress
-                    successfully then
+                    in the <code>number</code> parameter. According to the value of the <code>displayNumber</code> in
+                    the <code>params</code> parameter, own number is requested to be either displayed, hidden
+                    or otherwise the default system configuration to this regard is requested to be followed .
+                    If the request progress successfully then
                 <ol>
                   <li>Add <var>telCall</var> to the <code>calls</code> array
                   <li><a>queue a task</a> to record <var>telCall</var> once connected if the value passed in the
-                  <code>isRecorded</code> parameter is <code>true</code>.
+                  <code>recorded</code> in the <code>params</code> parameter is <code>true</code>.
                   <li>Set the <code>state</code> of <var>telCall</var> to <a href="#call-status-dialing"><code>dialing</code></a>.
                   <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>statechange</code> at the <var>telCall</var> object.
                   <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>dialing</code> at the <var>telCall</var> object.
@@ -244,6 +277,21 @@
 
         <p class="issue">
           The <code>incoming</code> event has to be defined according to DOM4.
+
+      <p>The <code>startTone</code> method when invoked MUST make a request to the telephony system
+      to start sending the tone passed in the <code>tone</code> parameter to the active TelephonyCall object.
+      If the request is acknowledged then return to the caller. If there is an error <a>queue a task</a>
+      <a>to fire a simple event</a> named <code>error</code> at the Telephony object.
+
+      <p>The <code>stopTone</code> method when invoked MUST make a request to the telephony system
+      to stop sending tones to the active TelephonyCall object. If the request is acknowledged then return to the caller.
+      If there is an error <a>queue a task</a> to fire a simple event
+      named <code>error</code> at the Telephony object.
+
+      <p>The <code>sendTone</code> method when invoked MUST make a request to the telephony system
+      to send the tone passed in the <code>tone</code> parameter to the active TelephonyCall object with a default duration.
+      If the request is acknowledged then return to the caller. If there is an error <a>queue a task</a>
+      <a>to fire a simple event</a> named <code>error</code> at the Telephony object.
 
       <section id="error-steps">
         <h3>Error Steps</h3>
@@ -279,7 +327,23 @@
         </table>
       </section>
     </section>
-
+   
+    <section>
+      <h3><a>DialParams</a> Dictionary</h3>
+      <dl title="dictionary DialParams" class="idl">
+        <dt>optional DOMString displayNumber</dt>
+        <dd>
+          Indicates whether the own number is to be hidden or displayed to the callee, or otherwise the default system
+          configuration to this regard is to be followed. It may have the following values: 'display',
+          'hide' and 'default'.
+        </dd>
+        <dt>optional Boolean recorded</dt>
+        <dd>
+          Indicates whether the call is intended to be recorded
+        </dd>
+      </dl>    
+    </section>
+    
     <section>
       <h2><a>TelephonyCall</a> Interface</h2>
       <dl title="[NoInterfaceObject]
@@ -308,17 +372,6 @@
 
         <dt>void redirect(in DOMString redirectNumber)</dt>
         <dd>This method redirects an incoming telephone call to another telelphone number.</dd>
-
-        <dt>void startTone(in DOMString tone)</dt>
-        <dd>This method starts emitting a DTMF tone in this TelephonyCall object. The <code>tone</code> parameter
-        with values (1-9; A-D; *; #) indicates the DTMF tone to be emitted.</dd>
-
-        <dt>void stopTone()</dt>
-        <dd>This method allows to stop the DTMF tone being emitted in this TelephonyCall object.</dd>
-
-        <dt>void sendTone(in DOMString tone)</dt>
-        <dd>This method emits a DTMF tone with default duration in this TelephonyCall object.
-        The <code>tone</code> parameter with values (1-9; A-D; *; #) indicates the DTMF tone to be emitted.</dd>
 
         <dt>void record(in boolean callrecording)</dt>
         <dd>This method allows to indicate whether the call is to be recorded or not when invoked respectively
@@ -489,21 +542,6 @@
       <p>When <i>TCallControl</i> is notified that the call has been successfully redirected it MUST set <code>state</code>
       to <a href="#call-status-disconnected"><code>disconnected</code></a>.
       
-      <p>The <code>startTone</code> method when invoked MUST make a request to the telephony system
-      to start sending the tone passed in the <code>tone</code> parameter to this TelephonyCall object.
-      If the request is acknowledged then return to the caller. If there is an error <a>queue a task</a>
-      <a>to fire a simple event</a> named <code>error</code> at this TelephonyCall object.
-
-      <p>The <code>stopTone</code> method when invoked MUST make a request to the telephony system
-      to stop sending tones to this TelephonyCall object. If the request is acknowledged then return to the caller.
-      If there is an error <a>queue a task</a> to fire a simple event
-      named <code>error</code> at this TelephonyCall object.
-
-      <p>The <code>sendTone</code> method when invoked MUST make a request to the telephony system
-      to send the tone passed in the <code>tone</code> parameter to this TelephonyCall object with a default duration.
-      If the request is acknowledged then return to the caller. If there is an error <a>queue a task</a>
-      <a>to fire a simple event</a> named <code>error</code> at this TelephonyCall object.
-
       <p>The <code>record</code> method when invoked with the <code>callrecording</code> parameter set to
       <code>true</code> MUST make a request to the telephony system to start recording the call if the call is in 
       <code>connected</code> state or otherwise once it reaches that state. If there is an error <a>queue a task</a>
@@ -587,17 +625,6 @@
           </tbody>
         </table>
       </section>
-    </section>
-
-    <section class="informative">
-      <h2>Examples</h2>
-      <p>
-        To be written
-
-      <div class="example">
-        <pre class="example sh_javascript">
-        </pre>
-      </div>
     </section>
 
     <section>
