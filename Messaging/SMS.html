@@ -3,15 +3,15 @@
   <head>
     <title>SMS API</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-    <script src='http://respec.specifiction.com/js/profiles/w3c-common.js' class='remove'></script>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common' class='remove'></script>
     <script class="remove">
       var respecConfig = {
-          specStatus:           "unofficial",
+          specStatus:           "ED",
           shortName:            "sms-api",
           publishDate:          "",
           previousPublishDate:  "",
           previousMaturity:     "",
-          edDraftURI:           "http://",
+          edDraftURI:           "http://www.w3.org/2012/sysapps/",
           // lcEnd:                "",
           crEnd:                "",
           editors:  [
@@ -30,7 +30,7 @@
   </head>
   <body>
     <section id="abstract">
-      This specification defines a System Level API which offers a simple interface to manage SMS Messages. A typical use case
+      This specification defines a System Level API which offers a simple interface to manage SMS messages. A typical use case
       of the SMS API is the implementation of a SMS client application.
     </section>
     
@@ -111,39 +111,114 @@
       <dl title="[NoInterfaceObject]
                  interface SMSManager : EventTarget"
           class="idl">
-        <dt> SMSRequest send (in DOMString number, in DOMString message)</dt>
+        <dt> SMSRequest send ()</dt>
         <dd>This method allows to instantiate a new <code>SMSRequest</code> object intended to send an SMS message with
         the text of the <code>message</code> parameter to the destination number indicated by the <code>number</code>
-        parameter.</dd>
+        parameter.
+        <dl class='parameters'>
+             <dt>DOMString number</dt>
+             <dd>
+               Destination number for the SMS message 
+             </dd>
+             <dt>DOMString message</dt>
+             <dd>
+               Text to be sent in the SMS
+             </dd>
+         </dl>
+        </dd>
 
-        <dt> SMSRequest[] send (in DOMString[] number, in DOMString message)</dt>
+
+        <dt> SMSRequest[] send ()</dt>
         <dd>This method allows to instantiate an array of new <code>SMSRequest</code> objects intended to send an SMS
         message with the text of the <code>message</code> parameter to each of the destination numbers indicated in the
-        <code>number</code> array parameter.</dd>
+        <code>number</code> array parameter.
+          <dl class='parameters'>
+             <dt>DOMString[] number</dt>
+             <dd>
+               Array including the destination numbers for the SMS message 
+             </dd>
+             <dt>DOMString message</dt>
+             <dd>
+               Text to be sent in the SMS
+             </dd>
+         </dl>
+        </dd>
 
-        <dt> unsigned short getNumberOfMessagesForText (in DOMString text)</dt>
-        <dd>This method returns the number of concatenated SMS segments needed to send a given text.</dd>
+        <dt> unsigned short numberOfSmsSegments ()</dt>
+        <dd>This method returns the number of concatenated SMS segments needed to send a given text.
+          <dl class='parameters'>
+             <dt>DOMString text</dt>
+             <dd>
+               Text intended to be sent as an SMS, whose number of required concatenated SMS segments is checked by
+               this method
+             </dd>
+         </dl>
+        </dd>
 
-        <dt> SMSRequest delete (in long id)</dt>
+        <dt> SMSRequest delete ()</dt>
         <dd>This method allows to instantiate a new <code>SMSRequest</code> object intended to delete the SMS message
-        with identifier equal to the indicated in the <code>id</code> parameter.</dd>
+        with identifier equal to the indicated in the <code>id</code> parameter.
+          <dl class='parameters'>
+             <dt>long id</dt>
+             <dd>
+               Unique identifier of the SMS message that is requested to be deleted
+             </dd>
+         </dl>
+        </dd>
 
-        <dt> SMSRequest delete (in SMSMessage  message)</dt>
+        <dt> SMSRequest delete ()</dt>
         <dd>This method allows to instantiate a new <code>SMSRequest</code> object intended to delete the SMS message
-        indicated in the <code>message</code> parameter.</dd>
+        indicated in the <code>message</code> parameter.
+          <dl class='parameters'>
+             <dt>SMSMessage  message</dt>
+             <dd>
+               SMS message that is requested to be deleted
+             </dd>
+         </dl>
+        </dd>
 
-        <dt> SMSRequest get (in long id)</dt>
+        <dt> SMSRequest get ()</dt>
         <dd>This method allows to instantiate a new <code>SMSRequest</code> object intended to retrieve the SMS message
-        with identifier equal to the indicated in the <code>id</code> parameter.</dd>
+        with identifier equal to the indicated in the <code>id</code> parameter.
+          <dl class='parameters'>
+             <dt>long id</dt>
+             <dd>
+               Unique identifier of the SMS message that is requested to be retrieved
+             </dd>
+         </dl>
+        </dd>
 
-        <dt> SMSRequest get (in SMSFilter filter, boolean reverse)</dt>
+        <dt> SMSRequest get ()</dt>
         <dd>This method allows to instantiate a new <code>SMSRequest</code> object intended to retrieve the SMS messages
         matching the filter described by the <code>filter</code> parameter and sorted according to the
-        <code>reverse</code> parameter.</dd>
+        <code>reverse</code> parameter.
+          <dl class='parameters'>
+             <dt>SMSFilter filter</dt>
+             <dd>
+               Filter that identifies the set of SMS message that are requested to be retrieved
+             </dd>
+             <dt>boolean reverse</dt>
+             <dd>
+              Indicates whether the set of retrieved messages are to be sorted with the older message first (if 'false')
+              or last if (if 'true')
+             </dd>
+         </dl>
+        </dd>
 
-        <dt> SMSRequest markMessageRead (in long id, boolean value)</dt>
+        <dt> SMSRequest markAsRead ()</dt>
         <dd>This method allows to instantiate a new <code>SMSRequest</code> object intended to mark as read or unread
-        the SMS message with identifier equal to the indicated in the <code>id</code> parameter.</dd>
+        the SMS message with identifier equal to the indicated in the <code>id</code> parameter.
+          <dl class='parameters'>
+             <dt>long id</dt>
+             <dd>
+               Unique identifier of the SMS message that is requested to be marked as read or unread
+             </dd>
+             <dt>boolean value</dt>
+             <dd>
+              Indicates whether the SMS message is to be marked as read (if 'true') or unread (if 'false')
+             </dd>
+         </dl>        
+        </dd>
 
         <dt class="no-docs">
           attribute EventHandler onreceived
@@ -163,18 +238,33 @@
  
       <p> The <dfn><code>send</code></dfn> method when invoked MUST run the following steps:
         <ol>
-         <li>Make a request to the SMS system to send an SMS message with text passed in the <code>message</code>
-         parameter to the number(s) indicated in the <code>number</code> parameter.
-         <li>For each of the intended recipients create a new <code>SMSRequest</code> object and:
+         <li>For each of the intended recipients: create a new instance of <code>SMSMessage</code> and a new instance of
+         <code>SMSRequest</code>and:
          <ol>
-           <li>set <code>readyState</code> of the <code>SMSRequest</code> object to 'processing'  
-           <li>return to the caller and <a>queue a task</a> to monitor SMS sending progress
+          <li>generate a unique identifier for this message
+          <li>set the <code>id</code> of the <code>SMSMessage</code> to the generated identifier
+          <li>set the <code>delivery</code> of the <code>SMSMessage</code> to 'sent'
+          <li>set the <code>sender</code> of the <code>SMSMessage</code> to the number of the SMS subscription used to
+          send this SMS message
+          <li>set the <code>recipient</code> of the <code>SMSMessage</code> to the value of the <code>number</code>
+          parameter
+          <li>set the <code>body</code> of the <code>SMSMessage</code> to the value of the <code>message</code>
+          parameter
+          <li>set the <code>read</code> of the <code>SMSMessage</code> to 'true'
+          <li>Make a request to the SMS system to send an SMS message with text passed in the <code>message</code>
+         parameter to the number(s) indicated in the <code>number</code> parameter.
+          <li>set <code>readyState</code> of the <code>SMSRequest</code> object to 'processing'  
+          <li>return the <code>SMSRequest</code> to the caller and <a>queue a task</a> to monitor SMS sending progress
          </ol>  
          <li>If there is an error invoke the <code>onerror</code> <a>event handler</a> of the <code>SMSRequest</code>
          object
-         <li>When the request has been completed:
+         <li>When each of the requests has been completed:
          <ol>
+          <li>set the <code>timestamp</code> of the corresponding <code>SMSMessage</code> to the timestamp when the SMS message was
+          actually sent
           <li>set the <code>readyState</code> of the <code>SMSRequest</code> object to 'done'
+          <li>set the <code>result</code> of the <code>SMSRequest</code> object to the corresponding
+          <code>SMSMessage</code> that has been sent
           <li>invoke the <code>onsuccess</code> <a>event handler</a> of the <code>SMSRequest</code>
          </ol>
         </ol>
@@ -189,7 +279,8 @@
          <li>Make a request to the SMS system to delete the SMS message with identifier equal to the <code>id</code>
          parameter passed in the request
          <li>Create a new <code>SMSRequest</code> object and set <code>readyState</code> of the
-         <code>SMSRequest</code> object to 'processing'  
+         <code>SMSRequest</code> object to 'processing' and return the <code>SMSRequest</code> to the caller
+ 
          <li>If there is an error invoke the <code>onerror</code> <a>event handler</a> of the <code>SMSRequest</code>
          object
          <li>When the request has been completed:
@@ -205,7 +296,7 @@
         <ol>
          <li>Make a request to the SMS system to delete the SMS message passed in the <code>message</code> parameter
          <li>Create a new <code>SMSRequest</code> object and set <code>readyState</code> of the
-         <code>SMSRequest</code> object to 'processing'  
+         <code>SMSRequest</code> object to 'processing' and return the <code>SMSRequest</code> to the caller
          <li>If there is an error invoke the <code>onerror</code> <a>event handler</a> of the <code>SMSRequest</code>
          object
          <li>When the request has been completed:
@@ -222,7 +313,7 @@
          <li>Make a request to the SMS system to get the SMS message with identifier equal to the <code>id</code>
          parameter passed in the request.
          <li>Create a new <code>SMSRequest</code> object and set <code>readyState</code> of the
-         <code>SMSRequest</code> object to 'processing'  
+         <code>SMSRequest</code> object to 'processing' and return the <code>SMSRequest</code> to the caller 
          <li>If there is an error invoke the <code>onerror</code> <a>event handler</a> of the <code>SMSRequest</code>
          object
          <li>When the request has been completed:
@@ -241,7 +332,7 @@
          them on timestamp with the older message first if the <code>reverse</code> parameter is 'false' or last if
          it is 'true'.
          <li>Create a new <code>SMSRequest</code> object and set <code>readyState</code> of the
-         <code>SMSRequest</code> object to 'processing'  
+         <code>SMSRequest</code> object to 'processing' and return the <code>SMSRequest</code> to the caller
          <li>If there is an error invoke the <code>onerror</code> <a>event handler</a> of the <code>SMSRequest</code>
          object
          <li>When the request has been completed:
@@ -253,12 +344,12 @@
         </ol>
        </ol>
          
-      <p> The <dfn><code>markMessageRead</code></dfn> method when invoked MUST run the following steps:
+      <p> The <dfn><code>markAsRead</code></dfn> method when invoked MUST run the following steps:
         <ol>
          <li>Make a request to the SMS system to mark the SMS message with identifier matching the <code>id</code>
          parameter as read/unread (depending on the <code>value</code> parameter being respectively 'true' or 'false').
          <li>Create a new <code>SMSRequest</code> object and set <code>readyState</code> of the
-         <code>SMSRequest</code> object to 'processing'  
+         <code>SMSRequest</code> object to 'processing' and return the <code>SMSRequest</code> to the caller 
          <li>If there is an error invoke the <code>onerror</code> <a>event handler</a> of the <code>SMSRequest</code>
          object
          <li>When the request has been completed:
@@ -269,23 +360,27 @@
         </ol>
        </ol>
 
-      <p> The <dfn><code>getNumberOfMessagesForText</code></dfn> method when invoked MUST return the number of
+      <p> The <dfn><code>numberOfSmsSegments</code></dfn> method when invoked MUST return the number of
       concatenated SMS segments needed to send the text passed in the <code>text</code> parameter, taking into account
       the encoding to be used to send such message as well as the overhead associated to concatenated SMS messages.
+      Note that the application is not supposed to split the text in a set of strings that fit each into a single SMS
+      segment, but to send the full message in a single <code>send</code> request. However having information on the number of SMS segments
+      may be required by the application in order to inform the user (e.g. in case the length of the text impacts on the price
+      charged for sending the message).
       
       <p>Upon a new message being received, the <a>user agent</a> MUST:
         <ol>
-          <li>Let <var>receivedMessage</var> be a new instance of <code>SMSMessage</code>.
-          <li>Generate a unique identifier for this message
-          <li>Set the <code>delivery</code> of <var>receivedMessage</var> to <code>received</code></a>
-          <li>Set the <code>sender</code> of <var>receivedMessage</var> to the sender of the SMS message</a>
-          <li>Set the <code>receiver</code> of <var>receivedMessage</var> to the recipient of the SMS message</a>
-          <li>Set the <code>body</code> of <var>receivedMessage</var> to the text of the received SMS message</a>
-          <li>Set the <code>receiver</code> of <var>receivedMessage</var> to the recipient of the SMS message</a>
-          <li>Set the <code>timestamp</code> of <var>receivedMessage</var> to the timestamp of the SMS message</a>
-          <li>Set the <code>read</code> of <var>receivedMessage</var> to 'false'</a>
-          <li><a>queue a task</a> to <a>fire an event</a> named <code><a>incoming</a></code> with the
-          <code>message</code> attribute set to <var>receivedMessage</var>.
+          <li>create a new instance of <code>SMSMessage</code>
+          <li>generate a unique identifier for this message
+          <li>set the <code>id</code> of the <code>SMSMessage</code> to the generated identifier
+          <li>set the <code>delivery</code> of the <code>SMSMessage</code> to 'received'
+          <li>set the <code>sender</code> of the <code>SMSMessage</code> to the sender of the SMS message
+          <li>set the <code>recipient</code> of the <code>SMSMessage</code> to the recipient of the SMS message
+          <li>set the <code>body</code> of the <code>SMSMessage</code> to the text of the received SMS message
+          <li>set the <code>timestamp</code> of the <code>SMSMessage</code> to  the timestamp of the SMS message
+          <li>set the <code>read</code> of the <code>SMSMessage</code> to 'false'
+          <li><a>queue a task</a> to <a>fire an event</a> named <code><a>received</a></code> with the
+          <code>message</code> attribute set to the newly created <code>SMSMessage</code> instance.
         </ol>
       
       <p>Upon a receipt confirmation of a previously sent message being received, the <a>user agent</a> MUST
@@ -326,20 +421,21 @@
       <h2><a>SMSRequest</a> Interface</h2>
       <p>The <a>SMSRequest</a> interface represents an ongoing operation. It provides callbacks that are called when
       the operation completes, as well as a reference to the operation's result. A method that initiates an operation 
-      e.g. delete message via the <code>delete</code> method in the <code>SMSManager</code> interface) may return a
+      (e.g. delete message via the <code>delete</code> method in the <code>SMSManager</code> interface) may return a
       SMSRequest object that can be used to monitor the progress of that operation.
       <dl title="[NoInterfaceObject]
                  interface SMSRequest"
           class="idl">
         <dt>readonly attribute DOMString readyState</dt>
-        <dd>Indicates the state of the request, with possible values 'processing' or 'done'.</dd>
+        <dd>Indicates the state of the request, with possible string values 'processing',if the request has been made and it
+        is progressing, or 'done', if the request has been already completed.</dd>
 
         <dt>readonly attribute DOMError? error</dt>
         <dd>An error that occured during the request. Errors are as defined in [[!DOM4]].</dd>
 
         <dt>readonly attribute any? result</dt>
         <dd>Indicates the result of the request. The type depends on the sort of request, and is specified in the
-        description of each method that returns a SMSRequest object, e.g. <code>delete</code> method of the
+        description of each method that returns a <code>SMSRequest</code> object, e.g. <code>delete</code> method of the
         <code>SMSManager</code> object.</dd>
 
         <dt class="no-docs">
@@ -351,15 +447,6 @@
           attribute EventHandler onerror
         </dt>
         <dd></dd>
-      </dl>
-
-      <p>The IDL attribute <dfn><code>readyState</code></dfn> MUST return the current status of the request. It MUST be
-      one of the following values: 
-      <dl>
-              <dt><dfn><code>processing</code></dfn> (string value 'processing')</dt>
-              <dd>A request has been made and it is progressing</dd>
-              <dt><dfn><code>done</code></dfn> (string value 'done')</dt>
-              <dd>The request has been already completed</dd>
       </dl>
 
       <section>
@@ -390,7 +477,7 @@
 
     <section>
       <h2><a>SMSMessage</a> Interface</h2>
-      <p>The <a>SMSMessage</a> interface represents a sent or received SMS Message.
+      <p>The <a>SMSMessage</a> interface represents a sent or received SMS message.
       <dl title="[NoInterfaceObject]
                  interface SMSMessage"
           class="idl">
@@ -398,13 +485,14 @@
         <dd>An identifier of the message that is unique in the frame of the user agent.</dd>
 
         <dt>readonly attribute DOMString delivery</dt>
-        <dd>Indicates whether the message has been sent or received.</dd>
+        <dd>Indicates whether the message has been sent (string value 'sent') or received (string value 'received')
+        by the SMS subscription for which this API is being offered</dd>
 
         <dt>readonly attribute DOMString sender</dt>
         <dd>Indicates the sender of the message.</dd>
 
-        <dt>readonly attribute DOMString receiver</dt>
-        <dd>Indicates the receiver of the message.</dd>
+        <dt>readonly attribute DOMString recipient</dt>
+        <dd>Indicates the recipient of the message.</dd>
 
         <dt>readonly attribute DOMString body</dt>
         <dd>Indicates the content of the message.</dd>
@@ -415,14 +503,6 @@
         <dt>readonly attribute boolean read</dt>
         <dd>Indicates whether the message has been marked as read (value 'true') or not (value 'false').</dd>
       </dl>
-
-      <p>The IDL attribute <dfn><code>delivery</code></dfn> MUST have one of the following values: 
-      <dl>
-              <dt><dfn><code>sent</code></dfn> (string value 'sent')</dt>
-              <dd>The message was sent by the SMS subscription for which this API is being offered</dd>
-              <dt><dfn><code>received</code></dfn> (string value 'received')</dt>
-              <dd>The message was received by the SMS subscription for which this API is being offered</dd>
-      </dl>
     </section>
 
     <section>
@@ -432,10 +512,10 @@
                  interface SMSIterator"
           class="idl">
         <dt>readonly attribute SMSMessage message</dt>
-        <dd>The <code>SMSMessage</code> element being currently accessed through the iterator.</dd>
-
-        <dt> SMSMessage next()</dt>
-        <dd>This method provides the next <code>SMSMessage</code> in the list.</dd>
+        <dd>The <code>SMSMessage</code> element being currently accessed through the iterator or null in case there are
+        no further messages.</dd>
+        <dt> void next()</dt>
+        <dd>This method moves to the next <code>SMSMessage</code> in the list.</dd>
       </dl>
     </section>
     
@@ -455,24 +535,20 @@
         filter.</dd>
 
         <dt>attribute DOMString[]? numbers</dt>
-        <dd>Indicates that just messages sent or received from one of this numbers are to be provided in the results of
-        this filter.</dd>
+        <dd>Indicates that just messages sent from or received at one of this numbers are to be provided in the results
+        of this filter.</dd>
 
         <dt>attribute DOMString? delivery</dt>
-        <dd>Indicates whether just sent or received messages are to be provided in the results of this filter,
-        respectively if it is set to 'sent' or 'received'</dd>
+        <dd>Indicates whether just the messages that have been sent or received, respectively if it is set to string
+        value 'sent' or 'received', by the SMS subscription for which this API is being offered are to be provided in
+        the results of this filter
+        </dd>
+        <dd>Indicates whether the message has been sent (string value 'sent') or received (string value 'received')
+        by the SMS subscription for which this API is being offered</dd>
 
         <dt>attribute boolean? read</dt>
         <dd>Indicates whether just read or unread messages are to be provided in the results of this filter,
         respectively if it is set to 'true' or 'false'</dd>
-      </dl>
-      
-      <p>The IDL attribute <dfn><code>delivery</code></dfn> MUST have one of the following values: 
-      <dl>
-              <dt><dfn><code>sent</code></dfn> (string value 'sent')</dt>
-              <dd>The results of this filter MUST just include messages that were sent by the SMS subscription for which this API is being offered</dd>
-              <dt><dfn><code>received</code></dfn> (string value 'received')</dt>
-              <dd>The results of this filter MUST just include messages that were received by the SMS subscription for which this API is being offered</dd>
       </dl>
     </section>
     
