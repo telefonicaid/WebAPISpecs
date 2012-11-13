@@ -153,7 +153,7 @@
              </dd>
              <dt>DialParams params</dt>
              <dd>
-               Indicates the parameters of the call (i.e. own number to be hidden or displayed and call to be recorded or not)
+               Indicates the parameters of the call (i.e. own number to be hidden or displayed)
              </dd>
           </dl>
         
@@ -241,12 +241,10 @@
               <li>Make a request to the telephony system to dial in the telephone number passed
                     in the <code>number</code> parameter. According to the value of the <code>displayNumber</code> in
                     the <code>params</code> parameter, own number is requested to be either displayed, hidden
-                    or otherwise the default system configuration to this regard is requested to be followed .
-                    If the request progress successfully then
+                    or otherwise the default system configuration to this regard is requested to be followed.
+                    If the request progress successfully, then
                 <ol>
                   <li>Add <var>telCall</var> to the <code>calls</code> array
-                  <li><a>queue a task</a> to record <var>telCall</var> once connected if the value passed in the
-                  <code>recorded</code> in the <code>params</code> parameter is <code>true</code>.
                   <li>Set the <code>state</code> of <var>telCall</var> to <a href="#call-status-dialing"><code>dialing</code></a>.
                   <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>statechange</code> at the <var>telCall</var> object.
                   <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>dialing</code> at the <var>telCall</var> object.
@@ -257,7 +255,7 @@
         </ol>
 
       <p><i>TCallControl</i> MUST listen to any event (originated by API client operations or by the telephony system itself)
-      that results in a disconnection not caused by the callee and in that case the following steps MUST be run:
+      that results in a disconnection not caused by the remote party, and in that case the following steps MUST be run:
       <ol id="steps-disconnect">
         <li>Set the <code>state</code> of <var>telCall</var> to <a href='#call-status-disconnected'><code>disconnected</code></a>.
         <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>statechange</code> at the <var>telCall</var> object.
@@ -333,13 +331,9 @@
       <dl title="dictionary DialParams" class="idl">
         <dt>optional DOMString displayNumber</dt>
         <dd>
-          Indicates whether the own number is to be hidden or displayed to the callee, or otherwise the default system
+          Indicates whether the own number is to be hidden or displayed to the called remote party, or otherwise the default system
           configuration to this regard is to be followed. It may have the following values: 'display',
           'hide' and 'default'.
-        </dd>
-        <dt>optional Boolean recorded</dt>
-        <dd>
-          Indicates whether the call is intended to be recorded
         </dd>
       </dl>    
     </section>
@@ -350,13 +344,16 @@
                  interface TelephonyCall : EventTarget"
           class="idl">
         <dt>readonly attribute DOMString number</dt>
-        <dd>It MUST return the telephone number of the callee.</dd>
+        <dd>It MUST return the telephone number of the remote party.</dd>
 
         <dt>readonly attribute DOMString state</dt>
         <dd>It MUST return the state of the call (see below).</dd>
 
         <dt>readonly attribute DOMError error</dt>
         <dd>An error that occured during the call lifecycle. Errors are as defined in [[!DOM4]].</dd>
+
+        <dt>readonly attribute DOMString? reason</dt>
+        <dd>It MUST return the additional information available relative to the state of the call. At least the following values MUST be supported for the <code>disconnected</code> call state: "unknown", "local" (caller hung up), "remote" (remote party hung up, or is busy), "network" (network unreachable or busy, or error happened).</dd>
 
         <dt>void answer()</dt>
         <dd>This method answers an incoming telephone call.</dd>
@@ -373,10 +370,6 @@
         <dt>void redirect(in DOMString redirectNumber)</dt>
         <dd>This method redirects an incoming telephone call to another telelphone number.</dd>
 
-        <dt>void record(in boolean callrecording)</dt>
-        <dd>This method allows to indicate whether the call is to be recorded or not when invoked respectively
-        with the <code>callrecording</code> parameter set to <code>true</code>/<code>false</code>.</dd>
-
         <dt class="no-docs">
           attribute EventHandler onstatechange
         </dt>
@@ -387,10 +380,6 @@
         <dd></dd>
         <dt class="no-docs">
           attribute EventHandler onalerting
-        </dt>
-        <dd></dd>
-        <dt class="no-docs">
-          attribute EventHandler onbusy
         </dt>
         <dd></dd>
         <dt class="no-docs">
@@ -440,9 +429,6 @@
         <dt><dfn id="call-status-alerting"><code>alerting</code></dfn> (string value 'alerting')</dt>
         <dd>The destination number has been reached and alerting is taking place</dd>
 
-        <dt><dfn id="call-status-busy"><code>busy</code></dfn> (string value 'busy')</dt>
-        <dd>The destination number is busy</dd>
-
         <dt><dfn id="call-status-connecting"><code>connecting</code></dfn> (string value 'connecting')</dt>
         <dd>An incoming call has been answered and is being connected</dd>
 
@@ -467,17 +453,14 @@
         <dt><dfn id="call-status-resuming"><code>resuming</code></dfn> (string value 'resuming')</dt>
         <dd>The call, which was on hold, is being resumed</dd>
 
-        <dt><dfn id="call-status-error"><code>error</code></dfn> (string value 'error')</dt>
-        <dd>There has been an error at some point in time</dd>
-
         <dt><dfn id="call-status-redirecting"><code>redirecting</code></dfn> (string value 'redirecting')</dt>
         <dd>The call is being redirected to another telephone number</dd>
       </dl>
 
-      <p class="issue">
-        It would be good to have a diagram that describes the state machine that MUST be supported
-      </p>
-
+      <div class="figure" style="text-align: left">
+          <img src="images/telephony_state_diagram.gif" alt="Telephony State Diagram" title="Telephony State Diagram">
+      </div>
+      
       <p>Whenever there is a change in the <code>state</code> attribute the <a>user agent</a> MUST:
         <ol>
           <li>Queue a task to fire a simple event which name will be equal to the new value of the state attribute.
@@ -487,18 +470,15 @@
       <p>When <i>TCallControl</i> is notified that call alerting tones are being sent it MUST
       set <code>state</code> to <a href="#call-status-alerting"><code>alerting</code></a>.
 
-      <p>When <i>TCallControl</i> is notified that the callee is busy it MUST
-      set <code>state</code> to <a href="#call-status-busy"><code>busy</code></a>.
-
-      <p>When <i>TCallControl</i> is notified that the connection is about to being established
+      <p>When <i>TCallControl</i> is notified that the connection is about to being established,
       it MUST set <code>state</code> to <a href="#call-status-connecting"><code>connecting</code></a>
 
-      <p>When <i>TCallControl</i> is informed that the connection has been established
+      <p>When <i>TCallControl</i> is informed that the connection has been established,
       it MUST set <code>state</code> to <a href="#call-status-connected"><code>connected</code></a>.
 
       <p>If there is any error during call progressing then the <a href="#error-steps">error steps</a> MUST be executed.
 
-      <p>The <code>disconnect</code> method when invoked MUST issue a request to the telephony system to disconnect the call. If the request is acknowledged
+      <p>The <code>disconnect</code> method when invoked MUST issue a request to the telephony system to disconnect the call. If the request is acknowledged,
       then set <code>state</code> to <a href="#call-status-disconnecting"><code>disconnecting</code></a>.
 
       <p>When <i>TCallControl</i> is notified of actual call disconnection it MUST set <code>state</code>
@@ -517,7 +497,7 @@
       <p>The <code>resume</code> method when invoked MUST run the following steps:
       <ol>
           <li>If <code>state</code> is not equal to 'held' raise an <code>ILLEGAL_STATE</code> exception
-          <li>Otherwise make a request to the telephony system to resume the call. If the request is acknowledged
+          <li>Otherwise make a request to the telephony system to resume the call. If the request is acknowledged,
           then set <code>state</code> to <a href="#call-status-resuming"><code>resuming</code></a>.
       </ol>
 
@@ -542,17 +522,6 @@
       <p>When <i>TCallControl</i> is notified that the call has been successfully redirected it MUST set <code>state</code>
       to <a href="#call-status-disconnected"><code>disconnected</code></a>.
       
-      <p>The <code>record</code> method when invoked with the <code>callrecording</code> parameter set to
-      <code>true</code> MUST make a request to the telephony system to start recording the call if the call is in 
-      <code>connected</code> state or otherwise once it reaches that state. If there is an error <a>queue a task</a>
-      <a>to fire a simple event</a> named <code>error</code> at this TelephonyCall object.
-      
-      <p>The <code>record</code> method when invoked with the <code>callrecording</code> parameter set to
-      <code>false</code> MUST make a request to the telephony system to stop recording the call, if it was being
-      recorded, or alternatively not to start recording it once the call to reaches the <code>connected</code> state if
-      the telephone system was waiting for the call to reach that status to start recording it. If there is an error
-      <a>queue a task</a> <a>to fire a simple event</a> named <code>error</code> at this TelephonyCall object.
-
       <section>
         <h2>Event handlers</h2>
         <p>
@@ -577,10 +546,6 @@
             <tr>
               <td><strong><code>onalerting</code></strong></td>
               <td><code><dfn>alerting</dfn></code></td>
-            </tr>
-            <tr>
-              <td><strong><code>onbusy</code></strong></td>
-              <td><code><dfn>busy</dfn></code></td>
             </tr>
             <tr>
               <td><strong><code>onconnecting</code></strong></td>
