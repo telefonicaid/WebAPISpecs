@@ -83,7 +83,7 @@
       and <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#event-handler-event-type"> event handler event types</a></dfn>
       are defined in [[!HTML5]].
 
-      <p>An <dfn>active call</dfn> is a Telephony Call in the <i>'connected'</i> state and bound
+      <p>An <dfn>active call</dfn> is a Telephony Call in the <a href='#call-status-connected'><code>connected</code></a> state and bound
       to the input and output devices (microphone, speaker and tone generator).</p>
     </section>
 
@@ -246,8 +246,8 @@
                 <ol>
                   <li>Add <var>telCall</var> to the <code>calls</code> array
                   <li>Set the <code>state</code> of <var>telCall</var> to <a href="#call-status-dialing"><code>dialing</code></a>.
-                  <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>statechange</code> at the <var>telCall</var> object.
-                  <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>dialing</code> at the <var>telCall</var> object.
+                  <li><a>Queue a task</a> to <a>fire a simple event</a> named <code><a>statechange</a></code> at the <var>telCall</var> object.
+                  <li><a>Queue a task</a> to <a>fire a simple event</a> named <code><a>dialing</a></code> at the <var>telCall</var> object.
                   <li>and finally return to the caller and <a>queue a task</a> <i>TCallControl</i> to monitor call flow progress.
                 </ol>
                 <li>If during further steps for call connection there is an error go to <a href="#error-steps">error steps</a>
@@ -258,18 +258,20 @@
       that results in a disconnection not caused by the remote party, and in that case the following steps MUST be run:
       <ol id="steps-disconnect">
         <li>Set the <code>state</code> of <var>telCall</var> to <a href='#call-status-disconnected'><code>disconnected</code></a>.
-        <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>statechange</code> at the <var>telCall</var> object.
-        <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>disconnected</code> at the <var>telCall</var> object.
+        <li><a>Queue a task</a> to <a>fire a simple event</a> named <code><a>statechange</a></code> at the <var>telCall</var> object.
+        <li><a>Queue a task</a> to <a>fire a simple event</a> named <code><a>disconnected</a></code> at the <var>telCall</var> object.
         <li>Remove the <var>telCall</var> object from the <code>calls</code> array at <code>Telephony</code>.
       </ol>
 
       <p>Upon a new incoming call, the <a>user agent</a> MUST:
         <ol>
           <li>Let <var title="">incomingCall</var> be a new instance of <code>TelephonyCall</code>.
-          <li>Set the <code>state</code> of <var>incomingCall</var> to <a href="#call-status-incoming"><code>incoming</code></a>
+          <li>Set the <code>state</code> of <var>incomingCall</var> to <a href="#call-status-incoming"><code>incoming</code></a> in case
+          there is no other call in <a href="#call-status-connected"><code>connected</code></a> state or otherwise to
+          <a href="#call-status-waiting"><code>waiting</code></a> 
           <li>Add <var title="">incomingCall</var> to the <code>calls</code> array
-          <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>statechange</code> at the <var>incomingCall</var> object.
-          <li><a>Queue a task</a> to <a>fire an event</a> named <code><a>incoming</a></code> at the <var>incomingCall</var> object and
+          <li><a>Queue a task</a> to <a>fire a simple event</a> named <code><a>statechange</a></code> at the <var>incomingCall</var> object.
+          <li><a>Queue a task</a> to <a>fire a simple event</a> named <code><a>incoming</a></code> at the <var>incomingCall</var> object and
           <li><a>Queue a task</a> <i>TCallControl</i> to monitor call flow progress.
         </ol>
 
@@ -279,24 +281,24 @@
       <p>The <code>startTone</code> method when invoked MUST make a request to the telephony system
       to start sending the tone passed in the <code>tone</code> parameter to the active TelephonyCall object.
       If the request is acknowledged then return to the caller. If there is an error <a>queue a task</a>
-      <a>to fire a simple event</a> named <code>error</code> at the Telephony object.
+      <a>to fire a simple event</a> named <a><code>error</code></a> at the Telephony object.
 
       <p>The <code>stopTone</code> method when invoked MUST make a request to the telephony system
       to stop sending tones to the active TelephonyCall object. If the request is acknowledged then return to the caller.
       If there is an error <a>queue a task</a> to fire a simple event
-      named <code>error</code> at the Telephony object.
+      named <a><code>error</code></a> at the Telephony object.
 
       <p>The <code>sendTone</code> method when invoked MUST make a request to the telephony system
       to send the tone passed in the <code>tone</code> parameter to the active TelephonyCall object with a default duration.
       If the request is acknowledged then return to the caller. If there is an error <a>queue a task</a>
-      <a>to fire a simple event</a> named <code>error</code> at the Telephony object.
+      <a>to fire a simple event</a> named <a><code>error</code></a> at the Telephony object.
 
       <section id="error-steps">
         <h3>Error Steps</h3>
         <p>
         <ol>
-          <li>Set the state of <var>telCall</var> to <code>error</code>.
-          <li>queue a task to fire a simple event named <code>error</code> at the <var>telCall</var> object.
+          <li>Set the state of <var>telCall</var> to <a href="#call-status-error"><code>error</code></a>.
+          <li>queue a task to fire a simple event named <a><code>error</code></a> at the <var>telCall</var> object.
         </ol>
       </section>
 
@@ -353,7 +355,10 @@
         <dd>An error that occured during the call lifecycle. Errors are as defined in [[!DOM4]].</dd>
 
         <dt>readonly attribute DOMString? reason</dt>
-        <dd>It MUST return the additional information available relative to the state of the call. At least the following values MUST be supported for the <code>disconnected</code> call state: "unknown", "local" (caller hung up), "remote" (remote party hung up, or is busy), "network" (network unreachable or busy, or error happened).</dd>
+        <dd>It MUST return the additional information available relative to the state of the call. At least the following
+        values MUST be supported for the <a href='#call-status-disconnected'><code>disconnected</code></a> call state:
+        "unknown", "local" (caller hung up), "remote" (remote party hung up, or is busy), "network" (network unreachable
+        or busy, or error happened).</dd>
 
         <dt>void answer()</dt>
         <dd>This method answers an incoming telephone call.</dd>
@@ -368,7 +373,7 @@
         <dd>This method resumes a telephone call that had been previously put on hold.</dd>
 
         <dt>void redirect(in DOMString redirectNumber)</dt>
-        <dd>This method redirects an incoming telephone call to another telelphone number.</dd>
+        <dd>This method redirects an incoming telephone call to another telephone number.</dd>
 
         <dt class="no-docs">
           attribute EventHandler onstatechange
@@ -383,7 +388,11 @@
         </dt>
         <dd></dd>
         <dt class="no-docs">
-          attribute EventHandler onconnecting
+          attribute EventHandler onconnecting_incoming
+        </dt>
+        <dd></dd>
+        <dt class="no-docs">
+          attribute EventHandler onconnecting_dialed
         </dt>
         <dd></dd>
         <dt class="no-docs">
@@ -426,11 +435,11 @@
         <dt><dfn id="call-status-dialing"><code>dialing</code></dfn> (string value 'dialing')</dt>
         <dd>A request to establish the call has been made and it is progressing</dd>
 
+        <dt><dfn id="call-status-connecting_dialed"><code>connecting_dialed</code></dfn> (string value 'connecting_dialed')</dt>
+        <dd>An outbound call that has been dialed and is being connected, and thus is not yet alerting the callee</dd>
+
         <dt><dfn id="call-status-alerting"><code>alerting</code></dfn> (string value 'alerting')</dt>
         <dd>The destination number has been reached and alerting is taking place</dd>
-
-        <dt><dfn id="call-status-connecting"><code>connecting</code></dfn> (string value 'connecting')</dt>
-        <dd>An incoming call has been answered and is being connected</dd>
 
         <dt><dfn id="call-status-connected"><code>connected</code></dfn> (string value 'connected')</dt>
         <dd>The call is ongoing</dd>
@@ -442,7 +451,14 @@
         <dd>The call has been disconnected</dd>
 
         <dt><dfn id="call-status-incoming"><code>incoming</code></dfn> (string value 'incoming')</dt>
-        <dd>An incoming call who has not been answered yet</dd>
+        <dd>An incoming call that has been received whilst no other call is in <code>connected</code> state
+        and has not been answered yet</dd>
+
+        <dt><dfn id="call-status-waiting"><code>waiting</code></dfn> (string value 'waiting')</dt>
+        <dd>An incoming call that has been received whilst there was another call in <code>connected</code> state</dd>
+        
+        <dt><dfn id="call-status-connecting_incoming"><code>connecting_incoming</code></dfn> (string value 'connecting_incoming')</dt>
+        <dd>An incoming call has been answered and is being connected</dd>
 
         <dt><dfn id="call-status-holding"><code>holding</code></dfn> (string value 'holding')</dt>
         <dd>The call is being put on hold</dd>
@@ -457,21 +473,35 @@
         <dd>The call is being redirected to another telephone number</dd>
       </dl>
 
-      <div class="figure" style="text-align: left">
-          <img src="images/telephony_state_diagram.gif" alt="Telephony State Diagram" title="Telephony State Diagram">
+      <p>The following figure depicts the state diagram for inbound calls, i.e. calls that are received
+      
+      <div style="text-align: left">
+          <img src="images/inbound_call_state_diagram.gif" alt="Inbound Call State Diagram" title="Inbound Call State Diagram">
       </div>
+      
+      <p>The following figure depicts the state diagram for outbound calls, i.e. calls that are dialed out
+      
+      <div style="text-align: left">
+          <img src="images/outbound_call_state_diagram.gif" alt="Outbound Call State Diagram" title="Outbound Call State Diagram">
+      </div>
+
+        <p class="issue">
+          It needs to be discussed whether the above figures are normative or not.
       
       <p>Whenever there is a change in the <code>state</code> attribute the <a>user agent</a> MUST:
         <ol>
           <li>Queue a task to fire a simple event which name will be equal to the new value of the state attribute.
-          <li>Queue a task to fire a simple event named <code>statechange</code>
+          <li>Queue a task to fire a simple event named <code><a>statechange</a></code>
         </ol>
+
+      <p>When <i>TCallControl</i> is notified that a dialed call is in the process of being connected,
+      it MUST set <code>state</code> to <a href="#call-status-connecting_dialed"><code>connecting_dialed</code></a>
 
       <p>When <i>TCallControl</i> is notified that call alerting tones are being sent it MUST
       set <code>state</code> to <a href="#call-status-alerting"><code>alerting</code></a>.
 
-      <p>When <i>TCallControl</i> is notified that the connection is about to being established,
-      it MUST set <code>state</code> to <a href="#call-status-connecting"><code>connecting</code></a>
+      <p>When <i>TCallControl</i> is notified that an answered incoming call is in the process of being connected,
+      it MUST set <code>state</code> to <a href="#call-status-connecting_incoming"><code>connecting_incoming</code></a>
 
       <p>When <i>TCallControl</i> is informed that the connection has been established,
       it MUST set <code>state</code> to <a href="#call-status-connected"><code>connected</code></a>.
@@ -486,7 +516,8 @@
 
       <p>The <code>hold</code> method when invoked MUST run the following steps:
       <ol>
-              <li>If <code>state</code> is not equal to <code>connected</code>  raise an <code>ILLEGAL_STATE</code> exception
+              <li>If <code>state</code> is not equal to <a href="#call-status-connected"><code>connected</code></a>
+              raise an <code>ILLEGAL_STATE</code> exception
               <li>Otherwise make a request to the telephony system to hold the call. If the request is acknowledged then set
               <code>state</code> to <a href="#call-status-holding"><code>holding</code></a>.
       </ol>
@@ -496,7 +527,8 @@
 
       <p>The <code>resume</code> method when invoked MUST run the following steps:
       <ol>
-          <li>If <code>state</code> is not equal to 'held' raise an <code>ILLEGAL_STATE</code> exception
+          <li>If <code>state</code> is not equal to <a href="#call-status-held"><code>held</code></a> raise an
+          <code>ILLEGAL_STATE</code> exception
           <li>Otherwise make a request to the telephony system to resume the call. If the request is acknowledged,
           then set <code>state</code> to <a href="#call-status-resuming"><code>resuming</code></a>.
       </ol>
@@ -506,14 +538,16 @@
 
       <p>The <code>answer</code> method when invoked MUST run the following steps:
       <ol>
-              <li>If <code>state</code> is not equal to 'incoming' raise an <code>ILLEGAL_STATE</code> exception
+              <li>If <code>state</code> is not equal to <a href="#call-status-incoming"><code>incoming</code></a> or
+              <a href="#call-status-waiting"><code>waiting</code></a> raise an <code>ILLEGAL_STATE</code> exception
               <li>Otherwise make a request to the telephony system to answer the call.
-              If the request is acknowledged then set <code>state</code> to <a href="#connecting"><code>connecting</code></a>.
+              If the request is acknowledged then set <code>state</code> to <a href="#connecting_incoming"><code>connecting_incoming</code></a>.
       </ol>
 
       <p>The <code>redirect</code> method when invoked MUST run the following steps:
       <ol>
-              <li>If <code>state</code> is not equal to 'incoming' raise an <code>ILLEGAL_STATE</code> exception
+              <li>If <code>state</code> is not equal to <a href="#call-status-incoming"><code>incoming</code></a>
+              raise an <code>ILLEGAL_STATE</code> exception
               <li>Otherwise make a request to the telephony system to redirect the call to the number indicated in the
               <code>redirectNumber</code> parameter. If the request is acknowledged then set <code>state</code> to
               <a href="#call-status-redirecting"><code>redirecting</code></a>.
@@ -548,8 +582,12 @@
               <td><code><dfn>alerting</dfn></code></td>
             </tr>
             <tr>
-              <td><strong><code>onconnecting</code></strong></td>
-              <td><code><dfn>connecting</dfn></code></td>
+              <td><strong><code>onconnecting_incoming</code></strong></td>
+              <td><code><dfn>connecting_incoming</dfn></code></td>
+            </tr>
+            <tr>
+              <td><strong><code>onconnecting_dialed</code></strong></td>
+              <td><code><dfn>onconnecting_dialed</dfn></code></td>
             </tr>
             <tr>
               <td><strong><code>onconnected</code></strong></td>
