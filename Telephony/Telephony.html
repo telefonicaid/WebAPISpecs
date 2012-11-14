@@ -388,11 +388,11 @@
         </dt>
         <dd></dd>
         <dt class="no-docs">
-          attribute EventHandler onconnecting_incoming
+          attribute EventHandler onaccepted
         </dt>
         <dd></dd>
         <dt class="no-docs">
-          attribute EventHandler onconnecting_dialed
+          attribute EventHandler onconnecting
         </dt>
         <dd></dd>
         <dt class="no-docs">
@@ -435,7 +435,7 @@
         <dt><dfn id="call-status-dialing"><code>dialing</code></dfn> (string value 'dialing')</dt>
         <dd>A request to establish the call has been made and it is progressing</dd>
 
-        <dt><dfn id="call-status-connecting_dialed"><code>connecting_dialed</code></dfn> (string value 'connecting_dialed')</dt>
+        <dt><dfn id="call-status-connecting"><code>connecting</code></dfn> (string value 'connecting')</dt>
         <dd>An outbound call that has been dialed and is being connected, and thus is not yet alerting the callee</dd>
 
         <dt><dfn id="call-status-alerting"><code>alerting</code></dfn> (string value 'alerting')</dt>
@@ -451,13 +451,12 @@
         <dd>The call has been disconnected</dd>
 
         <dt><dfn id="call-status-incoming"><code>incoming</code></dfn> (string value 'incoming')</dt>
-        <dd>An incoming call that has been received whilst no other call is in <code>connected</code> state
-        and has not been answered yet</dd>
+        <dd>An incoming call that has been received whilst no other call was progressing and that has not been answered yet</dd>
 
         <dt><dfn id="call-status-waiting"><code>waiting</code></dfn> (string value 'waiting')</dt>
-        <dd>An incoming call that has been received whilst there was another call in <code>connected</code> state</dd>
+        <dd>An incoming call that has been received whilst there was another call progressing</dd>
         
-        <dt><dfn id="call-status-connecting_incoming"><code>connecting_incoming</code></dfn> (string value 'connecting_incoming')</dt>
+        <dt><dfn id="call-status-accepted"><code>accepted</code></dfn> (string value 'accepted')</dt>
         <dd>An incoming call has been answered and is being connected</dd>
 
         <dt><dfn id="call-status-holding"><code>holding</code></dfn> (string value 'holding')</dt>
@@ -495,13 +494,10 @@
         </ol>
 
       <p>When <i>TCallControl</i> is notified that a dialed call is in the process of being connected,
-      it MUST set <code>state</code> to <a href="#call-status-connecting_dialed"><code>connecting_dialed</code></a>
+      it MUST set <code>state</code> to <a href="#call-status-connecting"><code>connecting</code></a>
 
       <p>When <i>TCallControl</i> is notified that call alerting tones are being sent it MUST
       set <code>state</code> to <a href="#call-status-alerting"><code>alerting</code></a>.
-
-      <p>When <i>TCallControl</i> is notified that an answered incoming call is in the process of being connected,
-      it MUST set <code>state</code> to <a href="#call-status-connecting_incoming"><code>connecting_incoming</code></a>
 
       <p>When <i>TCallControl</i> is informed that the connection has been established,
       it MUST set <code>state</code> to <a href="#call-status-connected"><code>connected</code></a>.
@@ -541,7 +537,7 @@
               <li>If <code>state</code> is not equal to <a href="#call-status-incoming"><code>incoming</code></a> or
               <a href="#call-status-waiting"><code>waiting</code></a> raise an <code>ILLEGAL_STATE</code> exception
               <li>Otherwise make a request to the telephony system to answer the call.
-              If the request is acknowledged then set <code>state</code> to <a href="#connecting_incoming"><code>connecting_incoming</code></a>.
+              If the request is acknowledged then set <code>state</code> to <a href="#accepted"><code>accepted</code></a>.
       </ol>
 
       <p>The <code>redirect</code> method when invoked MUST run the following steps:
@@ -582,12 +578,12 @@
               <td><code><dfn>alerting</dfn></code></td>
             </tr>
             <tr>
-              <td><strong><code>onconnecting_incoming</code></strong></td>
-              <td><code><dfn>connecting_incoming</dfn></code></td>
+              <td><strong><code>onaccepted</code></strong></td>
+              <td><code><dfn>accepted</dfn></code></td>
             </tr>
             <tr>
-              <td><strong><code>onconnecting_dialed</code></strong></td>
-              <td><code><dfn>onconnecting_dialed</dfn></code></td>
+              <td><strong><code>onconnecting</code></strong></td>
+              <td><code><dfn>onconnecting</dfn></code></td>
             </tr>
             <tr>
               <td><strong><code>onconnected</code></strong></td>
