@@ -322,15 +322,15 @@
    alert("darn! "+e.message);
    };
  req.onsuccess = function (e) {
-   var myPush = e.target.result;
-   var activate = "http://example.com/push/activate?pushEndpoint="+encodeURIComponent(myPush.pushEndpoint)+
-     "&amp;serverProtocols="+myPush.serverProtocols;
-   asyncXHR(activate); // send activation request to application server
-	 
-   myPush.wakeup = true;
-	 
+    registerWithAppServer(e.target.result);
    };
- };
+ function registerWithAppServer(pushRegistration) {
+    var activate = "http://example.com/push/activate?pushEndpoint="+
+      encodeURIComponent(pushRegistration.pushEndpoint)+
+      "&amp;serverProtocols="+pushRegistration.serverProtocols;
+    asyncXHR(activate); // send activation request to application server
+  };
+
  
 /* Hypothetical end-to-end flow
    +--------+           +--------+             +--------+           +--------+
@@ -549,13 +549,6 @@
   href="#dfn-appserver">Application servers</a> are expected to use the first
     supported protocol in this list, if possible. </dd> 
 
-    <dt>attribute boolean wakeup</dt>
-    <dd>An indication that the <a class="internalDFN"
-    href="#dfn-webapp">webapp</a> requests to be invoked if possible, when a <a
-    class="internalDFN" href="#dfn-push-notification">push notification</a> is
-    available for delivery and the <a class="internalDFN"
-    href="#dfn-webapp">webapp</a> is not active in a browser window.</dd> 
-    
     <dt>readonly attribute DOMString version</dt>
     <dd>It MUST return the an identifier of the last version of the content
     available through this <a class="internalDFN"
@@ -574,12 +567,11 @@
   <section>
   <h3>Steps</h3>
 
-  <p>If the <dfn id="dom-pushregistration-wakeup"><code>wakeup</code></dfn> is
-  set to <code>true</code> when a <a class="internalDFN"
-  href="#dfn-push-notification">push notification</a> is received and the <a
-  class="internalDFN" href="#dfn-webapp">webapp</a> is not active in a browser
-  window, the <a class="internalDFN" href="#dfn-user-agent">User agent</a> <em
-  title="must" class="rfc2119">must</em> invoke the <a class="internalDFN"
+  <p>If a <a class="internalDFN" href="#dfn-push-notification">push notification
+  </a> is received and the <a class="internalDFN" href="#dfn-webapp">webapp</a>
+  is not active in a browser window, the <a class="internalDFN"
+  href="#dfn-user-agent">User agent</a> <em title="must"
+  class="rfc2119">must</em> invoke the <a class="internalDFN"
   href="#dfn-webapp">webapp</a> if possible, and deliver the <a
   class="internalDFN" href="#dfn-push-notification">push notification</a> to it.
   Examples of cases in which <a class="internalDFN"
