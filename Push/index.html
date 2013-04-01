@@ -549,17 +549,25 @@
   href="#dfn-appserver">Application servers</a> are expected to use the first
     supported protocol in this list, if possible. </dd> 
 
-    <dt>readonly attribute DOMString version</dt>
+    <dt>readonly attribute DOMString? version</dt>
     <dd>It MUST return the an identifier of the last version of the content
     available through this <a class="internalDFN"
     href="#dfn-push-registration">push registration</a>. If it is different from
     the last version the <a class="internalDFN" href="#dfn-webapp">webapp</a> is
     aware of it signals that it has new content to be retrieved from the <a
-    class="internalDFN"
-  href="#dfn-appserver">application server</a></dd>
+    class="internalDFN".
+  href="#dfn-appserver">application server</a>
+    It MAY return null if the <code>PushRegistration</code> object has just been
+    returned as the result of a call to the <code>register</code> method at the
+    <code>PushManager</code> interface and no notification for this
+    <code>PushRegistration</code> has been received yet</dd>
 
   </dl>
 
+  <div class="note">A default server protocol (i.e. protocol between the
+  application server and the push server), that SHOULD be supported by any
+  implementation, needs to be referenced.</div>
+   
   <div class="note">How server protocol identifiers are defined and administered
   is TBD.</div>
    
@@ -613,9 +621,6 @@
     connect to the <a class="internalDFN" href="#dfn-appserver">application
     server</a> to retrieve further information.</dd>
 
-    <dt>readonly attribute DOMString? data</dt>
-    <dd>MUST return the content of the <a class="internalDFN"
-    href="#dfn-push-notification">push notification</a>.</dd>
   </dl>
 
 </section>
@@ -687,9 +692,6 @@
     <a><code>PushMessage</code></a> object to the version attribute indicated in
     the <a class="internalDFN" href="#dfn-push-notification">push
     notification</a>, if provided
-    <li>Set the <a><code>data</code></a> of the <a><code>PushMessage</code></a>
-    object to the data attribute contained in the <a class="internalDFN"
-    href="#dfn-push-notification">push notification</a>, if provided
     <li>Send a System Message of type <a><code>push</code></a> including the
     previous <a><code>PushMessage</code></a> object to the <a
     class="internalDFN"
