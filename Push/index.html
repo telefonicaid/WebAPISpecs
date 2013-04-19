@@ -549,19 +549,6 @@
   href="#dfn-appserver">Application servers</a> are expected to use the first
     supported protocol in this list, if possible. </dd> 
 
-    <dt>readonly attribute DOMString? version</dt>
-    <dd>It MUST return the an identifier of the last version of the content
-    available through this <a class="internalDFN"
-    href="#dfn-push-registration">push registration</a>. If it is different from
-    the last version the <a class="internalDFN" href="#dfn-webapp">webapp</a> is
-    aware of it signals that it has new content to be retrieved from the <a
-    class="internalDFN".
-  href="#dfn-appserver">application server</a>
-    It MAY return null if the <code>PushRegistration</code> object has just been
-    returned as the result of a call to the <code>register</code> method at the
-    <code>PushManager</code> interface and no notification for this
-    <code>PushRegistration</code> has been received yet</dd>
-
   </dl>
 
   <div class="note">A default server protocol (i.e. protocol between the
@@ -616,10 +603,19 @@
     <dt>readonly attribute DOMString? version</dt>
     <dd>MUST return an identifier of the latest version of the content available
     through this <a class="internalDFN" href="#dfn-push-registration">push
-    registration</a>. This attribute MAY be taken into account by the <a
-    class="internalDFN" href="#dfn-webapp">webapp</a> to assess the need to
-    connect to the <a class="internalDFN" href="#dfn-appserver">application
-    server</a> to retrieve further information.</dd>
+    registration</a>. If it is different from the last version the <a
+    class="internalDFN" href="#dfn-webapp">webapp</a> is aware of it signals
+    that it has new content to be retrieved from the <a class="internalDFN".
+    href="#dfn-appserver">application server</a>. The <code>version</code> is an
+    integer value that increments as long as new content is available through a
+    <a class="internalDFN" href="#dfn-push-registration">push registration</a>.
+    So higher values of <code>version</code> indicate newer content. Note that
+    the <a class="internalDFN" href="#dfn-push-server">push server</a> just
+    notifies of the latest version, so if different updates are notified from
+    the <a class="internalDFN" href="#dfn-appserver">application server</a> in a
+    short time, just the latest one may be notified to the <a class="internalDFN"
+    href="#dfn-user-agent">user agent</a> and in turn to the <a
+    class="internalDFN" href="#dfn-webapp">webapp</a></dd>
 
   </dl>
 
