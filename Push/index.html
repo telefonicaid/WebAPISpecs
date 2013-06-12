@@ -314,6 +314,13 @@
     href="#dfn-push-registration">push registration</a>,
   which the webapp may retrieve if not coincident with the latest version it has
   already retrieved. </p>
+
+  <p>The push notification system MUST ensure that the application eventually
+  has the latest version of data on the application server. The push server may
+  lose intermediate notifications or may lose all state, while fulfilling this
+  requirement. In such an event, it will deliver a push-register system message
+  to the application, so that the application may fetch the latest data from
+  the application server.</p>
   
   <div class="example">
 	 <pre class="example highlight prettyprint">
