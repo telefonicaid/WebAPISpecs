@@ -641,7 +641,7 @@
     class="internalDFN" href="#dfn-push-registration">push registration</a> to
     which this System Message is related.</dd>
 
-    <dt>readonly attribute DOMString? version</dt>
+    <dt>readonly attribute unsigned long long? version</dt>
     <dd>MUST return an identifier of the latest version of the content available
     through this <a class="internalDFN" href="#dfn-push-registration">push
     registration</a>. If it is different from the last version the <a
@@ -656,7 +656,12 @@
     the <a class="internalDFN" href="#dfn-appserver">application server</a> in a
     short time, just the latest one may be notified to the <a class="internalDFN"
     href="#dfn-user-agent">user agent</a> and in turn to the <a
-    class="internalDFN" href="#dfn-webapp">webapp</a></dd>
+    class="internalDFN" href="#dfn-webapp">webapp</a>. This attribute MUST
+    return null when the <a class="internalDFN" href="#dfn-push-server">push
+    server</a> has lost track of the state, in order to indicate the <a
+    class="internalDFN" href="#dfn-webapp">webapp</a> that it should ask the
+    application server and restore local state.
+    </dd>
 
   </dl>
 
