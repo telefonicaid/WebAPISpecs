@@ -579,26 +579,7 @@
     <a class="internalDFN" href="#dfn-push-notification">push notifications</a>
     to this <a class="internalDFN" href="#dfn-webapp">webapp</a></dd>
   
-    <dt>readonly attribute DOMString[] serverProtocols</dt>
-    <dd>An array of protocols which are supported by the <a class="internalDFN"
-    href="#dfn-push-server">push server</a> via the <code>pushEndpoint</code> to
-    receive <a class="internalDFN" href="#dfn-push-notification">push
-    notifications</a> from the <a class="internalDFN"
-  href="#dfn-appserver">application server</a>. The list should be ordered by
-    preference (e.g. protocols more likely to be deprecated first should go
-    later in the array). <a class="internalDFN"
-  href="#dfn-appserver">Application servers</a> are expected to use the first
-    supported protocol in this list, if possible. </dd> 
-
   </dl>
-
-  <div class="note">A default server protocol (i.e. protocol between the
-  application server and the push server), that SHOULD be supported by any
-  implementation, needs to be referenced.</div>
-   
-  <div class="note">How server protocol identifiers are defined and administered
-  is TBD.</div>
-   
 
   <section>
   <h3>Steps</h3>
