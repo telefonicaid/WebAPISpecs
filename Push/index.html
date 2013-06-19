@@ -324,17 +324,14 @@
   
   <div class="example">
 	 <pre class="example highlight prettyprint">
- var req = navigator.push.register();
- req.onerror = function (e) {
-   alert("darn! "+e.message);
-   };
- req.onsuccess = function (e) {
-    registerWithAppServer(e.target.result);
-   };
+ navigator.push.register().then(
+  function(value) {registerWithAppServer(value);},
+  function(reason) {alert("darn! "+ reason );}  
+  );
+
  function registerWithAppServer(pushRegistration) {
     var activate = "http://example.com/push/activate?pushEndpoint="+
-      encodeURIComponent(pushRegistration.pushEndpoint)+
-      "&amp;serverProtocols="+pushRegistration.serverProtocols;
+      encodeURIComponent(pushRegistration.pushEndpoint);
     asyncXHR(activate); // send activation request to application server
   };
 
@@ -351,7 +348,7 @@
        |                    |                      |                     |
        |                    |&lt;-setup push service->|                     |
        |                    |                      |                     |
-       |&lt;---success event---|                      |                     |
+       |&lt;---success---------|                      |                     |
        |                    |                      |                     |
        |&lt;--activate service with PushService attributes----------------->|
        |                    |                      |                     |
