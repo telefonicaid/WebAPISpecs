@@ -444,15 +444,14 @@
       unless a prearranged trust relationship applies or the user has already
       granted permission explicitly to this <a class="internalDFN"
       href="#dfn-webapp">webapp</a>.
-      <li>If not granted, run the following sub-steps and terminate this
-      algorithm:
+      <li>If not granted, run the following sub-steps and terminate these steps:
         <ol>
           <li>Let <em>error</em> be a new <a href=
           "http://dom.spec.whatwg.org/#domerror">DOMError</a> object whose
           name is "<a href=
           "http://dom.spec.whatwg.org/#aborterror">AbortError</a>".
           </li>
-          <li>Invoke <em>resolver</em>'s <code>reject(value)</code> method with
+          <li>Invoke <em>resolver</em>'s <code>reject</code> algorithm with
           <em>error</em> as the <code>value</code> argument.
         </ol>
       </li>
@@ -461,7 +460,7 @@
       requesting <a class="internalDFN" href="#dfn-webapp">webapp</a>.
       </li>
       <li>If there is an error invoke <em>resolver</em>'s <code>reject()</code>
-      method, with no arguments and terminate this algorithm.
+      algorithm with no arguments and terminate these steps.
       </li>
       <li>When the request has been completed run the following sub-steps:
         <ol>
@@ -470,7 +469,7 @@
           the <a class="internalDFN" href="#dfn-push-registration">push
           registration</a>.
           </li>
-          <li>invoke <em>resolver</em>'s <code>accept(value)</code> method with
+          <li>invoke <em>resolver</em>'s <code>fulfill</code> algorithm with
           <em>pushRegistration</em> as the <code>value</code> argument.
         </ol>
       </li>
@@ -494,7 +493,7 @@
       registration</a>.
       </li>
       <li>If none of them is fulfilled, run the following sub-steps and
-      terminate this algorithm:
+      terminate these steps:
         <ol>
           <li>Let <em>error</em> be a new <a href=
           "http://dom.spec.whatwg.org/#domerror">DOMError</a> object whose
@@ -502,7 +501,7 @@
           "http://dom.spec.whatwg.org/#nomodificationallowederror">
           NoModificationAllowedError</a>".
           </li>
-          <li>Invoke <em>resolver</em>'s <code>reject(value)</code> method with
+          <li>Invoke <em>resolver</em>'s <code>reject</code> algorithm with
           <em>error</em> as the <code>value</code> argument.
           </li>
         </ol>
@@ -512,10 +511,10 @@
       identified by the <code>pushEndpoint</code> attribute.
       </li>
       <li>If there is an error invoke <em>resolver</em>'s <code>reject()</code>
-      method, with no arguments and terminate this algorithm.
+      algorithm with no arguments and terminate these steps.
       </li>
       <li>When the request has been completed invoke <em>resolver</em>'s
-      <code>accept(value)</code> method with a <code>DOMString</code> set to the value of the
+      <code>fulfill</code> algorithm with a <code>DOMString</code> set to the value of the
       <code>pushEndpoint</code> attribute as the <code>value</code> argument.
       </li>
    </ol>
@@ -533,7 +532,7 @@
       href="#dfn-push-registration">push registration</a> associated to the
       requesting <a class="internalDFN" href="#dfn-webapp">webapp</a>
       <li>If there is an error invoke <em>resolver</em>'s <code>reject()</code>
-      method, with no arguments and terminate this algorithm.
+      algorithm with no arguments and terminate these steps.
       </li>
       <li>When the request has been completed run the following sub-steps:
         <ol>
@@ -543,7 +542,7 @@
           registration</a> associated to the requesting <a class="internalDFN"
           href="#dfn-webapp">webapp</a>.
           </li>
-          <li>invoke <em>resolver</em>'s <code>accept(value)</code> method with
+          <li>invoke <em>resolver</em>'s <code>fulfill</code> algorithm with
           <em>pushRegistrations</em> as the <code>value</code> argument.
         </ol>
       </li>
