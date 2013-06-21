@@ -218,10 +218,14 @@
   event handler event types</a></dfn> are defined in [[!HTML5]].</p>
 
   <p>The <dfn><a href="http://dom.spec.whatwg.org/#promise">Promise</a></dfn>
-  interface as well as the resolver concept of a <a href=
-  "http://dom.spec.whatwg.org/#concept-resolver"><dfn>resolver</dfn></a> are
-  defined in [[DOM4]].</p>
-
+  interface, the concepts of a <a href=
+  "http://dom.spec.whatwg.org/#concept-resolver"><dfn>resolver</dfn></a>, a
+  <dfn id="dfn-fulfill-algorithm"><a
+  href="http://dom.spec.whatwg.org/#concept-resolver-fulfill"> resolver's
+  fulfill algorithm</a></dfn> and a <dfn id="dfn-reject-algorithm"><a
+  href="http://dom.spec.whatwg.org/#concept-resolver-reject"> resolver's reject
+  algorithm</a></dfn> are defined in [[DOM4]].</p>
+  
   <p>The term <dfn id="dfn-intent-provider">web intent push service
   provider</dfn> refers to a service implemented as described in
   [[!WEBINTENTS]], and offering Push API binding to event delivery via the
@@ -451,16 +455,18 @@
           name is "<a href=
           "http://dom.spec.whatwg.org/#aborterror">AbortError</a>".
           </li>
-          <li>Invoke <em>resolver</em>'s <code>reject</code> algorithm with
-          <em>error</em> as the <code>value</code> argument.
+          <li>Invoke <em>resolver</em>'s <a class="internalDFN"
+          href="#dfn-reject-algorithm">reject algorithm</a> with <em>error</em>
+          as the <code>value</code> argument.
         </ol>
       </li>
       <li>Make a request to the system to create a new <a class="internalDFN"
       href="#dfn-push-registration">push registration</a> for the
       requesting <a class="internalDFN" href="#dfn-webapp">webapp</a>.
       </li>
-      <li>If there is an error invoke <em>resolver</em>'s <code>reject()</code>
-      algorithm with no arguments and terminate these steps.
+      <li>If there is an error invoke <em>resolver</em>'s <a class="internalDFN"
+      href="#dfn-reject-algorithm">reject algorithm</a> with no arguments and
+      terminate these steps.
       </li>
       <li>When the request has been completed run the following sub-steps:
         <ol>
@@ -469,7 +475,8 @@
           the <a class="internalDFN" href="#dfn-push-registration">push
           registration</a>.
           </li>
-          <li>invoke <em>resolver</em>'s <code>fulfill</code> algorithm with
+          <li>Invoke <em>resolver</em>'s <a class="internalDFN"
+          href="#dfn-fulfill-algorithm">fulfill algorithm</a> with
           <em>pushRegistration</em> as the <code>value</code> argument.
         </ol>
       </li>
@@ -501,7 +508,8 @@
           "http://dom.spec.whatwg.org/#nomodificationallowederror">
           NoModificationAllowedError</a>".
           </li>
-          <li>Invoke <em>resolver</em>'s <code>reject</code> algorithm with
+          <li>Invoke <em>resolver</em>'s <a class="internalDFN"
+          href="#dfn-reject-algorithm">reject algorithm</a> algorithm with
           <em>error</em> as the <code>value</code> argument.
           </li>
         </ol>
@@ -510,11 +518,13 @@
       href="#dfn-push-registration">push registration</a>
       identified by the <code>pushEndpoint</code> attribute.
       </li>
-      <li>If there is an error invoke <em>resolver</em>'s <code>reject()</code>
-      algorithm with no arguments and terminate these steps.
+      <li>If there is an error invoke <em>resolver</em>'s <a class="internalDFN"
+      href="#dfn-reject-algorithm">reject algorithm</a> with no arguments and
+      terminate these steps.
       </li>
-      <li>When the request has been completed invoke <em>resolver</em>'s
-      <code>fulfill</code> algorithm with a <code>DOMString</code> set to the value of the
+      <li>When the request has been completed invoke <em>resolver</em>'s <a
+      class="internalDFN" href="#dfn-fulfill-algorithm">fulfill algorithm</a>
+      with a <code>DOMString</code> set to the value of the
       <code>pushEndpoint</code> attribute as the <code>value</code> argument.
       </li>
    </ol>
@@ -531,7 +541,8 @@
       <li>Retrieve the list of <a class="internalDFN"
       href="#dfn-push-registration">push registration</a> associated to the
       requesting <a class="internalDFN" href="#dfn-webapp">webapp</a>
-      <li>If there is an error invoke <em>resolver</em>'s <code>reject()</code>
+      <li>If there is an error invoke <em>resolver</em>'s <a
+      class="internalDFN" href="#dfn-reject-algorithm">reject algorithm</a>
       algorithm with no arguments and terminate these steps.
       </li>
       <li>When the request has been completed run the following sub-steps:
@@ -542,7 +553,8 @@
           registration</a> associated to the requesting <a class="internalDFN"
           href="#dfn-webapp">webapp</a>.
           </li>
-          <li>invoke <em>resolver</em>'s <code>fulfill</code> algorithm with
+          <li>Invoke <em>resolver</em>'s <a class="internalDFN"
+          href="#dfn-fulfill-algorithm">fulfill algorithm</a> algorithm with
           <em>pushRegistrations</em> as the <code>value</code> argument.
         </ol>
       </li>
