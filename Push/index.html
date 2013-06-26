@@ -334,8 +334,8 @@
   );
 
  function registerWithAppServer(pushRegistration) {
-    var activate = "http://example.com/push/activate?pushEndpoint="+
-      encodeURIComponent(pushRegistration.pushEndpoint);
+    var activate = "http://example.com/push/activate?pushRegistrationId="+
+      encodeURIComponent(pushRegistration.pushRegistrationId);
     asyncXHR(activate); // send activation request to application server
   };
 
@@ -414,10 +414,9 @@
     returns a <a><code>Promise</code></a> that will allow the caller to be notified about the
     result of the operation.
       <dl class='parameters'>
-         <dt>DOMString pushEndpoint</dt> <dd>
-           Identifier of the push registration that the <a class="internalDFN"
-    href="#dfn-webapp">webapp</a> requests to
-           unregister
+         <dt>DOMString pushRegistrationId</dt> <dd>
+           Identifies the push registration that the <a class="internalDFN"
+           href="#dfn-webapp">webapp</a> requests to unregister
      </dl>
     </dd>
 
@@ -491,7 +490,7 @@
       <li>Return <var>promise</var> and continue the following steps
       asynchronously.
       </li>
-      <li>Check that the <code>pushEndpoint</code> attribute relates to an
+      <li>Check that the <code>pushRegistrationId</code> attribute relates to an
       active <a class="internalDFN" href="#dfn-push-registration">push
       registration</a> of the requesting <a class="internalDFN"
       href="#dfn-webapp">webapp</a> or alternatively that the requesting <a
@@ -516,7 +515,7 @@
       </li>
       <li>Make a request to the system to deactivate the <a class="internalDFN"
       href="#dfn-push-registration">push registration</a>
-      identified by the <code>pushEndpoint</code> attribute.
+      identified by the <code>pushRegistrationId</code> attribute.
       </li>
       <li>If there is an error invoke <em>resolver</em>'s <a class="internalDFN"
       href="#dfn-reject-algorithm">reject algorithm</a> with no arguments and
@@ -525,7 +524,7 @@
       <li>When the request has been completed invoke <em>resolver</em>'s <a
       class="internalDFN" href="#dfn-fulfill-algorithm">fulfill algorithm</a>
       with a <code>DOMString</code> set to the value of the
-      <code>pushEndpoint</code> attribute as the <code>value</code> argument.
+      <code>pushRegistrationId</code> attribute as the <code>value</code> argument.
       </li>
    </ol>
     
@@ -577,11 +576,20 @@
 
     <dt>readonly attribute DOMString pushEndpoint</dt>
     <dd>It MUST return the absolute URL exposed by the <a class="internalDFN"
-  href="#dfn-push-server">push server</a> where the <a class="internalDFN"
-  href="#dfn-appserver">application server</a> can send
+    href="#dfn-push-server">push server</a> where the <a class="internalDFN"
+    href="#dfn-appserver">application server</a> can send
     <a class="internalDFN" href="#dfn-push-notification">push notifications</a>
     to this <a class="internalDFN" href="#dfn-webapp">webapp</a></dd>
   
+    <dt>readonly attribute DOMString pushRegistrationId</dt>
+    <dd>It MUST return a univocal identifier of this <a
+    class="internalDFN" href="#dfn-push-registration">push registration</a> in
+    the <a class="internalDFN" href="#dfn-push-server">push server</a>. It is
+    used by the <a class="internalDFN" href="#dfn-appserver">application
+    server</a> to indicate the target of the <a class="internalDFN"
+    href="#dfn-push-notification">push notifications</a> that it submits to the
+    <a class="internalDFN" href="#dfn-push-server">push server</a>.</dd>
+    
   </dl>
 
   <section>
@@ -620,10 +628,10 @@
     href="#dfn-push-notification">push notification</a>.
   <dl title="interface PushMessage"
       class="idl">
-    <dt>readonly attribute DOMString pushEndpoint</dt>
-    <dd>MUST return the <code>pushEndpoint</code> corresponding to the <a
-    class="internalDFN" href="#dfn-push-registration">push registration</a> to
-    which this System Message is related.</dd>
+    <dt>readonly attribute DOMString pushRegistrationId</dt>
+    <dd>MUST return the identifier of the <a class="internalDFN"
+    href="#dfn-push-registration">push registration</a> to which this System
+    Message is related.</dd>
 
     <dt>readonly attribute unsigned long long? version</dt>
     <dd>MUST return an identifier of the latest version of the content available
@@ -664,10 +672,10 @@
     <code>register</code> method.
   <dl title="interface PushRegisterMessage"
       class="idl">
-    <dt>readonly attribute DOMString pushEndpoint</dt>
-    <dd>MUST return the <code>pushEndpoint</code> corresponding to the <a
-    class="internalDFN" href="#dfn-push-registration">push registration</a> to
-    which this System Message is related.</dd>
+    <dt>readonly attribute DOMString pushRegistrationId</dt>
+    <dd>MUST return the identifier of the <a class="internalDFN"
+    href="#dfn-push-registration">push registration</a> to which this System
+    Message is related.</dd>
 
   </dl>
 </section>
@@ -710,11 +718,11 @@
   MUST run the following steps:
    <ul>
     <li>Create a new <a><code>PushMessage</code></a> object
-    <li>Set the <a><code>pushEndpoint</code></a> of the
-    <a><code>PushMessage</code></a> object to the push endpoint to which the <a
-    class="internalDFN" href="#dfn-push-notification">push notification</a> was
-    sent
-    <li>Set the <a><code>version</code></a> of the
+    <li>Set the <a><code>pushRegistrationId</code></a> of the
+    <a><code>PushMessage</code></a> object to the identifier of the <a
+    class="internalDFN" href="#dfn-push-registration">push registration</a> to
+    which the <a class="internalDFN" href="#dfn-push-notification">push
+    notification</a> was sent <li>Set the <a><code>version</code></a> of the
     <a><code>PushMessage</code></a> object to the version attribute indicated in
     the <a class="internalDFN" href="#dfn-push-notification">push
     notification</a>, if provided
@@ -732,10 +740,10 @@
   following steps:
    <ul>
     <li>Create a new <a><code>PushRegisterMessage</code></a> object
-    <li>Set the <a><code>pushEndpoint</code></a> of the
-    <a><code>PushRegisterMessage</code></a> object to the push endpoint of the
-    <a class="internalDFN" href="#dfn-push-registration">push registration</a>
-    that is no longer valid
+    <li>Set the <a><code>pushRegistrationId</code></a> of the
+    <a><code>PushRegisterMessage</code></a> object to the identifier of the <a
+    class="internalDFN" href="#dfn-push-registration">push registration</a> that
+    is no longer valid
     <li>Send a System Message of type <a><code>push-register</code></a>
     including the previous <a><code>PushRegisterMessage</code></a> object to the
     <a class="internalDFN" href="#dfn-webapp">webapp</a> to which the <a
