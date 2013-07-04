@@ -102,10 +102,10 @@
   Server-Sent Events [[!SSE]], the GSM Short Message Service [[!GSM-SMS]], SIP
   MESSAGE [[!RFC3428]], or OMA Push [[!OMA-PUSH]]), or via browser-specific
   methods. The specific method to be used by a <a class="internalDFN"
-  href="#dfn-webapp">webapp</a> is either selected by the user through selecting
-  a <a class="internalDFN" href="#dfn-intent-provider">web intent push service
-  provider</a>, or by the browser. The Push API is defined to promote
-  compatibility with any underlying delivery method.</p>
+  href="#dfn-webapp">webapp</a> is either selected by the user through a 
+	<a class="internalDFN" href="#dfn-push-extension">push service extension</a>, 
+	or by the browser. The Push API is defined to promote compatibility with any 
+		delivery method.</p>
   
 </section>
 
@@ -226,10 +226,9 @@
   href="http://dom.spec.whatwg.org/#concept-resolver-reject"> resolver's reject
   algorithm</a></dfn> are defined in [[DOM4]].</p>
   
-  <p>The term <dfn id="dfn-intent-provider">web intent push service
-  provider</dfn> refers to a service implemented as described in
-  [[!WEBINTENTS]], and offering Push API binding to event delivery via the
-  service.</p>
+  <p>The term <dfn id="dfn-push-extension">push service extension</dfn> refers 
+	to a browser extension enabling push service configuration for the user, and 
+	thereby enabling Push API binding to event delivery via the service.</p>
   
   <p>The term <dfn id="dfn-webapp">webapp</dfn> refers to a Web application,
   i.e. an application implemented using Web technologies, and executing within
