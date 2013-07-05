@@ -643,31 +643,6 @@
     
   </dl>
 
-  <section>
-  <h3>Steps</h3>
-
-  <p>If a <a class="internalDFN" href="#dfn-push-notification">push notification
-  </a> is received and the <a class="internalDFN" href="#dfn-webapp">webapp</a>
-  is not active in a browser window, the <a class="internalDFN"
-  href="#dfn-user-agent">User agent</a> <em title="must"
-  class="rfc2119">must</em> invoke the <a class="internalDFN"
-  href="#dfn-webapp">webapp</a> if possible, and deliver the <a
-  class="internalDFN" href="#dfn-push-notification">push notification</a> to it.
-  Examples of cases in which <a class="internalDFN"
-  href="#dfn-webapp">webapps</a> should be invokable include:</p>
-   <ul>
-    <li>The <a class="internalDFN" href="#dfn-webapp">webapp</a> has been
-    installed from a widget package or other installation method. <li>The <a
-    class="internalDFN" href="#dfn-webapp">webapp</a> is persistently cached via
-    the [[!HTML5]] Application Cache. <li>The <a class="internalDFN"
-    href="#dfn-webapp">webapp</a> exists in the browser cache. <li>The browser
-    is able to retrieve the <a class="internalDFN" href="#dfn-webapp">webapp</a>
-    at the absolute URL from where it was accessed when the
-    <code><a>PushRegistration</a></code> object was created.
-   </ul>
-    
-  </section>
-  
 </section>
 
 <!------------------------ Interface PushMessage ---------------------------->
@@ -803,6 +778,29 @@
     relates
    </ul>
       
+  <p>If a <a class="internalDFN" href="#dfn-push-notification">push notification
+  </a> or an indication about a <a class="internalDFN"
+  href="#dfn-push-registration">push registration</a> being no longer valid is
+  received and the <a class="internalDFN" href="#dfn-webapp">webapp</a> is not
+  active in a browser window, the <a class="internalDFN"
+  href="#dfn-user-agent">User agent</a> <em title="must"
+  class="rfc2119">must</em> invoke the <a class="internalDFN"
+  href="#dfn-webapp">webapp</a> if possible, and deliver the <a
+  class="internalDFN" href="#dfn-push-notification">push notification</a> to it.
+  Examples of cases in which <a class="internalDFN"
+  href="#dfn-webapp">webapps</a> should be invokable include:</p>
+   <ul>
+    <li>The <a class="internalDFN" href="#dfn-webapp">webapp</a> has been
+    installed from a widget package or other installation method.
+    <li>The <a class="internalDFN" href="#dfn-webapp">webapp</a> is persistently
+    cached via the [[!HTML5]] Application Cache.
+    <li>The <a class="internalDFN" href="#dfn-webapp">webapp</a> exists in the
+    browser cache.
+    <li>The browser is able to retrieve the <a class="internalDFN"
+    href="#dfn-webapp">webapp</a> at the absolute URL from where it was accessed
+    when the <code><a>PushRegistration</a></code> object was created.
+   </ul>
+    
   </section>
 
 
