@@ -373,7 +373,7 @@
      if (message.version > last_version) {
        var getdata = "http://example.com/push/get?pushRegistrationId="+
        encodeURIComponent(pushRegistration.pushRegistrationId)+
-       "&last="+last_version+"&current="+message.version;
+       "&last="+last_version+"&amp;current="+message.version;
        gotdata = function(data) {
          // handle retrieved data
        }
