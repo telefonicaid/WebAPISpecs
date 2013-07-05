@@ -102,10 +102,10 @@
   Server-Sent Events [[!SSE]], the GSM Short Message Service [[!GSM-SMS]], SIP
   MESSAGE [[!RFC3428]], or OMA Push [[!OMA-PUSH]]), or via browser-specific
   methods. The specific method to be used by a <a class="internalDFN"
-  href="#dfn-webapp">webapp</a> is either selected by the user through selecting
-  a <a class="internalDFN" href="#dfn-intent-provider">web intent push service
-  provider</a>, or by the browser. The Push API is defined to promote
-  compatibility with any underlying delivery method.</p>
+  href="#dfn-webapp">webapp</a> is either selected by the user through a 
+	<a class="internalDFN" href="#dfn-push-extension">push service extension</a>, 
+	or by the browser. The Push API is defined to promote compatibility with any 
+		delivery method.</p>
   
 </section>
 
@@ -226,10 +226,9 @@
   href="http://dom.spec.whatwg.org/#concept-resolver-reject"> resolver's reject
   algorithm</a></dfn> are defined in [[DOM4]].</p>
   
-  <p>The term <dfn id="dfn-intent-provider">web intent push service
-  provider</dfn> refers to a service implemented as described in
-  [[!WEBINTENTS]], and offering Push API binding to event delivery via the
-  service.</p>
+  <p>The term <dfn id="dfn-push-extension">push service extension</dfn> refers 
+	to a browser extension enabling push service configuration for the user, and 
+	thereby enabling Push API binding to event delivery via the service.</p>
   
   <p>The term <dfn id="dfn-webapp">webapp</dfn> refers to a Web application,
   i.e. an application implemented using Web technologies, and executing within
@@ -328,17 +327,68 @@
   
   <div class="example">
 	 <pre class="example highlight prettyprint">
- navigator.push.register().then(
-  function(value) {registerWithAppServer(value);},
-  function(reason) {alert("darn! "+ reason );}  
-  );
-
+	 
+ pushRegistrations = null;
+ 
+ function registerPush() {
+   navigator.push.register().then(
+     function(value) {
+       pushRegistrations.push(value);
+       registerWithAppServer(value);
+     },
+     function(reason) {alert("darn! "+ reason );}  
+   );
+ }
+ 
+ function reRegisterPush(pushRegistration) {
+   for (reg in pushRegistrations) {
+     if (pushRegistrations[reg] == pushRegistration) pushRegistrations.splice(reg,1);
+   }
+   registerPush();
+ }
+ 
+ navigator.push.registrations().then(
+   function(registrations) { 
+     if (registrations.length == 0) registerPush(); // assume at least one needed
+     else pushRegistrations = registrations;
+   },		 
+   function(reason) {alert("darn! "+ reason );}  
+ );
+ 
  function registerWithAppServer(pushRegistration) {
     var activate = "http://example.com/push/activate?pushRegistrationId="+
-      encodeURIComponent(pushRegistration.pushRegistrationId);
+      encodeURIComponent(pushRegistration.pushRegistrationId)+
+      "&pushEndpoint="+encodeURIComponent(pushRegistration.pushEndpoint);
     asyncXHR(activate); // send activation request to application server
   };
 
+ function gotPush(message) {
+   if (message.version == null) {
+     var reset = "http://example.com/push/reset?pushRegistrationId="+
+       encodeURIComponent(pushRegistration.pushRegistrationId)+
+      "&pushEndpoint="+encodeURIComponent(pushRegistration.pushEndpoint);
+     asyncXHR(reset); // send reset request to application server
+   }
+   else {
+     if (message.version > last_version) {
+       var getdata = "http://example.com/push/get?pushRegistrationId="+
+       encodeURIComponent(pushRegistration.pushRegistrationId)+
+       "&last="+last_version+"&current="+message.version;
+       gotdata = function(data) {
+         // handle retrieved data
+       }
+       asyncXHR(getdata, gotdata); // send data retrieval request to app server
+     }
+   }
+ }
+ 
+ if (navigator.hasPendingMessages("push")) {
+   // do any special pre-processing before push messages are delivered
+ }
+ 
+ last_version = null; // initialize last message version
+ navigator.setMessageHandler("push", gotPush);
+ navigator.setMessageHandler("push-register", reRegisterPush);
  
 /* Hypothetical end-to-end flow
    +--------+           +--------+             +--------+           +--------+
@@ -550,7 +600,8 @@
           <a><code>PushRegistration</code></a> object per active <a
           class="internalDFN" href="#dfn-push-registration">push
           registration</a> associated to the requesting <a class="internalDFN"
-          href="#dfn-webapp">webapp</a>.
+          href="#dfn-webapp">webapp</a>. A length of <code>zero</code> for 
+					<em>pushRegistrations</em> indicates that there are no registrations.
           </li>
           <li>Invoke <em>resolver</em>'s <a class="internalDFN"
           href="#dfn-fulfill-algorithm">fulfill algorithm</a> algorithm with
@@ -640,19 +691,20 @@
     class="internalDFN" href="#dfn-webapp">webapp</a> is aware of it signals
     that it has new content to be retrieved from the <a class="internalDFN".
     href="#dfn-appserver">application server</a>. The <code>version</code> is an
-    integer value that increments as long as new content is available through a
+    integer value that is incremented when new content is available through a
     <a class="internalDFN" href="#dfn-push-registration">push registration</a>.
     So higher values of <code>version</code> indicate newer content. Note that
-    the <a class="internalDFN" href="#dfn-push-server">push server</a> just
-    notifies of the latest version, so if different updates are notified from
-    the <a class="internalDFN" href="#dfn-appserver">application server</a> in a
-    short time, just the latest one may be notified to the <a class="internalDFN"
-    href="#dfn-user-agent">user agent</a> and in turn to the <a
-    class="internalDFN" href="#dfn-webapp">webapp</a>. This attribute MUST
-    return null when the <a class="internalDFN" href="#dfn-push-server">push
-    server</a> has lost track of the state, in order to indicate the <a
-    class="internalDFN" href="#dfn-webapp">webapp</a> that it should ask the
-    application server and restore local state.
+    the <a class="internalDFN" href="#dfn-push-server">push server</a> may just
+    notify of the latest version if multiple notification requests have been recieved 
+		from the <a class="internalDFN" href="#dfn-appserver">application server</a> 
+		before the <a class="internalDFN" href="#dfn-push-server">push server</a> is 
+		ready to send a notification. Thus a notification for each version may not be 
+		received by the <a class="internalDFN" href="#dfn-user-agent">user agent</a> 
+		and in turn by the <a class="internalDFN" href="#dfn-webapp">webapp</a>. 
+		This attribute MUST return null when the <a class="internalDFN" 
+		href="#dfn-push-server">push server</a> has lost track of the state, in order 
+		to indicate the <a class="internalDFN" href="#dfn-webapp">webapp</a> that it 
+		should ask the application server and restore local state.
     </dd>
 
   </dl>
@@ -737,7 +789,7 @@
     href="#dfn-push-registration">push registration</a> no longer valid, e.g. <a
   class="internalDFN" href="#dfn-push-server">push server</a> database failure,
   the <a class="internalDFN" href="#dfn-user-agent">User agent</a> MUST run the
-  following steps:
+  following steps:	
    <ul>
     <li>Create a new <a><code>PushRegisterMessage</code></a> object
     <li>Set the <a><code>pushRegistrationId</code></a> of the
