@@ -691,19 +691,20 @@
     class="internalDFN" href="#dfn-webapp">webapp</a> is aware of it signals
     that it has new content to be retrieved from the <a class="internalDFN".
     href="#dfn-appserver">application server</a>. The <code>version</code> is an
-    integer value that increments as long as new content is available through a
+    integer value that is incremented when new content is available through a
     <a class="internalDFN" href="#dfn-push-registration">push registration</a>.
     So higher values of <code>version</code> indicate newer content. Note that
-    the <a class="internalDFN" href="#dfn-push-server">push server</a> just
-    notifies of the latest version, so if different updates are notified from
-    the <a class="internalDFN" href="#dfn-appserver">application server</a> in a
-    short time, just the latest one may be notified to the <a class="internalDFN"
-    href="#dfn-user-agent">user agent</a> and in turn to the <a
-    class="internalDFN" href="#dfn-webapp">webapp</a>. This attribute MUST
-    return null when the <a class="internalDFN" href="#dfn-push-server">push
-    server</a> has lost track of the state, in order to indicate the <a
-    class="internalDFN" href="#dfn-webapp">webapp</a> that it should ask the
-    application server and restore local state.
+    the <a class="internalDFN" href="#dfn-push-server">push server</a> may just
+    notify of the latest version if multiple notification requests have been recieved 
+		from the <a class="internalDFN" href="#dfn-appserver">application server</a> 
+		before the <a class="internalDFN" href="#dfn-push-server">push server</a> is 
+		ready to send a notification. Thus a notification for each version may not be 
+		received by the <a class="internalDFN" href="#dfn-user-agent">user agent</a> 
+		and in turn by the <a class="internalDFN" href="#dfn-webapp">webapp</a>. 
+		This attribute MUST return null when the <a class="internalDFN" 
+		href="#dfn-push-server">push server</a> has lost track of the state, in order 
+		to indicate the <a class="internalDFN" href="#dfn-webapp">webapp</a> that it 
+		should ask the application server and restore local state.
     </dd>
 
   </dl>
