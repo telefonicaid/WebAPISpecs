@@ -327,17 +327,68 @@
   
   <div class="example">
 	 <pre class="example highlight prettyprint">
- navigator.push.register().then(
-  function(value) {registerWithAppServer(value);},
-  function(reason) {alert("darn! "+ reason );}  
-  );
-
+	 
+ pushRegistrations = null;
+ 
+ function registerPush() {
+   navigator.push.register().then(
+     function(value) {
+       pushRegistrations.push(value);
+       registerWithAppServer(value);
+     },
+     function(reason) {alert("darn! "+ reason );}  
+   );
+ }
+ 
+ function reRegisterPush(pushRegistration) {
+   for (reg in pushRegistrations) {
+     if (pushRegistrations[reg] == pushRegistration) pushRegistrations.splice(reg,1);
+   }
+   registerPush();
+ }
+ 
+ navigator.push.registrations().then(
+   function(registrations) { 
+     if (registrations.length == 0) registerPush(); // assume at least one needed
+     else pushRegistrations = registrations;
+   },		 
+   function(reason) {alert("darn! "+ reason );}  
+ );
+ 
  function registerWithAppServer(pushRegistration) {
     var activate = "http://example.com/push/activate?pushRegistrationId="+
-      encodeURIComponent(pushRegistration.pushRegistrationId);
+      encodeURIComponent(pushRegistration.pushRegistrationId)+
+      "&pushEndpoint="+encodeURIComponent(pushRegistration.pushEndpoint);
     asyncXHR(activate); // send activation request to application server
   };
 
+ function gotPush(message) {
+   if (message.version == null) {
+     var reset = "http://example.com/push/reset?pushRegistrationId="+
+       encodeURIComponent(pushRegistration.pushRegistrationId)+
+      "&pushEndpoint="+encodeURIComponent(pushRegistration.pushEndpoint);
+     asyncXHR(reset); // send reset request to application server
+   }
+   else {
+     if (message.version > last_version) {
+       var getdata = "http://example.com/push/get?pushRegistrationId="+
+       encodeURIComponent(pushRegistration.pushRegistrationId)+
+       "&last="+last_version+"&current="+message.version;
+       gotdata = function(data) {
+         // handle retrieved data
+       }
+       asyncXHR(getdata, gotdata); // send data retrieval request to app server
+     }
+   }
+ }
+ 
+ if (navigator.hasPendingMessages("push")) {
+   // do any special pre-processing before push messages are delivered
+ }
+ 
+ last_version = null; // initialize last message version
+ navigator.setMessageHandler("push", gotPush);
+ navigator.setMessageHandler("push-register", reRegisterPush);
  
 /* Hypothetical end-to-end flow
    +--------+           +--------+             +--------+           +--------+
@@ -736,7 +787,7 @@
     href="#dfn-push-registration">push registration</a> no longer valid, e.g. <a
   class="internalDFN" href="#dfn-push-server">push server</a> database failure,
   the <a class="internalDFN" href="#dfn-user-agent">User agent</a> MUST run the
-  following steps:
+  following steps:	
    <ul>
     <li>Create a new <a><code>PushRegisterMessage</code></a> object
     <li>Set the <a><code>pushRegistrationId</code></a> of the
