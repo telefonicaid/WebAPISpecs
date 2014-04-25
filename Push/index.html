@@ -539,11 +539,6 @@
 		enabling use of that particular push system. These parameters and attributes 
 		include:</p>
 		<ul>
-		<li>The <code>registerOptions</code> allows a webapp to deliver a bag of 
-		data that the user agent may need to establish the applicable push service. This
-		bag can contain data for multiple push systems, so that the webapp does not need
-		do use user agent detection to select a specific push system, and further to allow
-		user agents to support multiple push systems.
 		<li>The <code>pushRegistrationId</code> of a <code>PushRegistration</code>, as 
 		an opaque string to the Push API, may be used by push systems to provide 
 		meaningful data to the 
@@ -591,23 +586,9 @@
 		<p>Prior to use of a push server API, 
 		<a class="internalDFN" href="#dfn-webappserver">webapp servers</a> that are 
 		designed to work with multiple push systems may need to determine the 
-		applicable system, e.g. using methods such as:</p>
-		<ul>
-		<li>user agent detection, for user agents that support only one push system 
-		<li>Parse the <code>pushEndpoint</code>, e.g. to detect the push system from 
-		the URI domain.
+		applicable system by parsing the <code>pushEndpoint</code> to detect the push
+		system from the URI domain.
 		</ul>
-			
-		<p>If the applicable push system cannot be determined prior to creation of a
-		<a class="internalDFN" href="#dfn-push-registration">push registration</a>,
-		webapps may need to provide any predetermined system-specific data necessary
-		in the registration process, through the <code>registerOptions</code>. When 
-		working with multiple push systems, the webapp may need to concatenate all 
-		necessary data of the set of systems in the <code>registerOptions</code>. It
-		is assumed that the user agent will be able to recognize the applicable 
-		options from the <code>registerOptions</code> parameter, and apply them as 
-		necessary in selecting from supported systems or registering with a single
-		supported system.</p>
 		
 	</section>
 </section>
@@ -658,23 +639,13 @@
 
   <dl title="interface PushManager" class="idl">
 
-    <dt> Promise register (optional Object registerOptions)</dt>
+    <dt> Promise register ()</dt>
     <dd>This method allows a <a class="internalDFN"
     href="#dfn-webapp">webapp</a> to create a new <a class="internalDFN"
     href="#dfn-push-registration">push registration</a> to receive <a
     class="internalDFN" href="#dfn-push-message">push messages</a>. It
     returns a <a><code>Promise</code></a> that will allow the caller to be 
-		notified about the result of the operation. 
-      <dl class='parameters'>
-         <dt>optional Object registerOptions</dt> <dd>
-           An object that provides <a class="internalDFN"
-           href="#dfn-push-server">push server</a>-specific registration parameters 
-           that the <a class="internalDFN" href="#dfn-webapp">webapp</a> 
-           needs to establish the push service with the <a class="internalDFN"
-           href="#dfn-push-server">push server</a>. The 
-           registerOptions can be shared by multiple <a class="internalDFN" 
-           href="#dfn-webapp">webapps</a> or unique to a specific 
-           <a class="internalDFN" href="#dfn-webapp">webapp</a>.
+    notified about the result of the operation. 
      </dl>
     </dd>
 
