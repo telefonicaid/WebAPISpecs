@@ -394,8 +394,8 @@
   // Log the deserialized JSON data object
   console.log(e.message.data);
   // ...
-  // From here the SW can write the data to IDB, send it to any open windows,
-  // etc.
+  // From here the SW can write the data to IndexedDB, display a notification,
+  // send it to any open windows, etcetera.
  }
  
  // http://example.com/webapp.js
@@ -435,7 +435,7 @@
     // resources for the application itself are downloaded).
     sw.register("/service_worker.js", { scope: "*" }).then(resolve, reject);
    } else {
-     sw.ready().then(resolve, reject);
+    sw.ready().then(resolve, reject);
    }
   });
  }
@@ -447,10 +447,10 @@
   var regId = "......";
   var push = navigator.push;
 
-	// The push object is an async map that can be used to enumerate and
+  // The push object is an async map that can be used to enumerate and
   // test for active channels.
   push.has(regId).catch(function() {
-	 // this will be executed if the regId is not found 
+   // this will be executed if the regId is not found 
    // register() is async and can prompt the user. On success, the
    // expected regId value should be added to the map.
    push.register({
@@ -720,7 +720,7 @@
       href="#dfn-webapp">webapp</a> to activate the reception of <a
       class="internalDFN" href="#dfn-push-message">push messages</a>,
       unless a prearranged trust relationship applies or the user has already
-      granted permission explicitly to this <a class="internalDFN"
+      granted or denied permission explicitly to this <a class="internalDFN"
       href="#dfn-webapp">webapp</a>.
       <li>If not granted, run the following sub-steps and terminate these steps:
         <ol>
@@ -745,7 +745,7 @@
       <li>When the request has been completed run the following sub-steps:
         <ol>
           <li>Let <em>pushRegistration</em> be a new
-          <code>pushRegistration</code> object providing the details of
+          <code>PushRegistration</code> object providing the details of
           the <a class="internalDFN" href="#dfn-push-registration">push
           registration</a>.
           </li>
@@ -776,8 +776,8 @@
           <li>Let <em>error</em> be a new <a href=
           "http://dom.spec.whatwg.org/#domerror">DOMError</a> object whose
           name is "<a href=
-          "http://dom.spec.whatwg.org/#nomodificationallowederror">
-          NoModificationAllowedError</a>".
+          "http://dom.spec.whatwg.org/#nomodificationallowederror"
+          >NoModificationAllowedError</a>".
           </li>
           <li>Invoke <em>resolver</em>'s <a class="internalDFN"
           href="#dfn-reject-algorithm">reject algorithm</a> algorithm with
@@ -822,8 +822,8 @@
           <code>pushRegistration</code> object per active <a
           class="internalDFN" href="#dfn-push-registration">push
           registration</a> associated to the requesting <a class="internalDFN"
-          href="#dfn-webapp">webapp</a>. A length of <code>zero</code> for 
-					<em>pushRegistrations</em> indicates that there are no registrations.
+          href="#dfn-webapp">webapp</a>. A length of <code>zero</code> for
+          <em>pushRegistrations</em> indicates that there are no registrations.
           </li>
           <li>Invoke <em>resolver</em>'s <a class="internalDFN"
           href="#dfn-fulfill-algorithm">fulfill algorithm</a> algorithm with
