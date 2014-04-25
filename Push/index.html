@@ -300,7 +300,13 @@
   <p><a class="internalDFN" href="#dfn-user-agent">User agents</a> <em
   title="may" class="rfc2119">may</em> support prearranged trust relationships
   that do not require such per-request user interfaces.</p>
- 
+
+  <p><a class="internalDFN" href="#dfn-user-agent">User agents</a> <em
+  title="should" class="rfc2119">should</em> implement the Push API to be
+  HTTPS-only. SSL-only support provides better protection for the user against
+  man-in-the-middle attacks intended to obtain push registration data. Browsers
+  may ignore this rule for development purposes only.</p>
+
   <p>Permissions that are preserved beyond the current browsing session <em
   title="must" class="rfc2119">must</em> be revocable.</p>
   
@@ -372,7 +378,7 @@
 <div class="example">
 <pre class="example highlight prettyprint">
 
- // http://example.com/serviceworker.js
+ // https://example.com/serviceworker.js
  
  this.oninstall = function(e) {
   // Note that push messages won't be delivered to this service worker (SW)
@@ -398,7 +404,7 @@
   // etc.
  }
  
- // http://example.com/webapp.js
+ // https://example.com/webapp.js
  
  var logError = console.error.bind(console);
  
@@ -415,7 +421,7 @@
   // to complete preparation for activating the push service
   // including the pushEndpoint and pushRegistrationId
   asyncXHR(
-   "http://example.com/push/activate" + toQueryString(registration);
+   "https://example.com/push/activate" + toQueryString(registration);
   );
  }
  
@@ -715,6 +721,19 @@
       </li>
       <li>Return <var>promise</var> and continue the following steps
       asynchronously.
+      </li>
+      <li>If the scheme of the document url is not <code>https</code>, then:
+        <ol>
+          <li>Let <em>error</em> be a new <a href="
+          "http://dom.spec.whagwg.org/#domerror">DOMError</a> object whose
+          name is "<a href=
+          "http://dom.spec.whatwg.org/#securityerror">SecurityError</a>".
+          </li>
+          <li>Invoke <em>resolver</em>'s <a class="internalDFN"
+          href="#dfn-reject-algorithm">reject algorithm</a> with <em>error</em>
+          as the <code>value</code> argument.
+          </li>
+        </ol>
       </li>
       <li>Ask the user whether it allows the requesting <a class="internalDFN"
       href="#dfn-webapp">webapp</a> to activate the reception of <a
